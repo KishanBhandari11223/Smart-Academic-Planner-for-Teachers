@@ -1,0 +1,22 @@
+### UI Polish Add-on: Premium Branding, GSAP & Motion
+
+Enhance the Adaptive Teaching Planner with a polished visual identity and purposeful animations while preserving the supplied Stitch designs and the existing product workflows.
+
+**Branding:** Establish a consistent, premium university-product aesthetic using refined typography, a restrained color palette, generous whitespace, subtle borders, and consistent spacing. The interface should feel modern, calm, intelligent, and trustworthy—not like a generic admin dashboard. Keep the UI practical for teachers who use it every day.
+
+**GSAP and motion:** Use GSAP where it genuinely improves the experience:
+- Subtle page-content entrance transitions and staggered reveals.
+- Smooth, restrained parallax on suitable decorative elements or the main landing/login screen.
+- Elegant subject-card hover effects and small navigation transitions.
+- Animated progress bars when syllabus or session progress changes.
+- Smooth expansion of syllabus units, topic lists, and session details.
+- Clear transitions between syllabus setup, pacing, schedule mapping, and plan review.
+- Lightweight feedback animations for saving progress, approving plans, and applying schedule changes.
+
+**UX rules:** Keep everyday teacher workflows fast. Avoid parallax or elaborate animations inside data-heavy planning screens, forms, calendars, and post-class check-ins. Never delay a button action or hide important information behind animation. Avoid excessive scroll hijacking, bouncing elements, animated backgrounds, and gratuitous motion.
+
+**Implementation:** Use GSAP with React and Next.js App Router correctly. Scope animations to their components, clean up GSAP contexts and ScrollTriggers on unmount, avoid conflicting animations during route changes, and prevent layout shifts. Use CSS transitions for simple hover and focus states instead of GSAP where appropriate. Respect `prefers-reduced-motion`, maintain keyboard accessibility, and ensure animations remain smooth on mobile and lower-powered devices.
+
+**Important:** Do not add dependencies or animation to every component indiscriminately. Preserve the existing design references, navigation, responsive layouts, and functional behavior. Prioritize subtle, consistent motion that makes the product feel intuitive and premium rather than flashy.
+
+The result should feel like a thoughtfully branded modern productivity product, with animation serving clarity and usability—not distracting from teaching.

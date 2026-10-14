@@ -1,0 +1,494 @@
+# Adaptive Teaching Planner — Frontend MVP Implementation
+
+## Role
+
+Act as a senior frontend engineer and software architect. You are implementing a polished, maintainable frontend MVP for an Adaptive Teaching Planner used by university teachers.
+
+I will provide ZIP files containing UI screens generated with Stitch. These screenshots, exports, and related assets are your primary source of truth for the interface.
+
+Your job is to inspect the supplied files, understand the intended user journeys, identify genuine missing states or screens, and implement the complete frontend in Next.js.
+
+**Do not start coding before inspecting the supplied ZIP files. Do not invent a new UI when an existing design already covers the requirement.**
+
+---
+
+## 1. Product context
+
+The product helps university teachers plan syllabus coverage, schedule teaching sessions around their actual teaching availability and institution calendar, record classroom progress, and adapt upcoming sessions when teaching does not go according to plan.
+
+The goal of this MVP is to demonstrate a coherent, navigable, realistic product workflow. It does not need production backend infrastructure or a real AI integration.
+
+Priorities, in order:
+
+1. Faithfully implement the supplied UI designs.
+2. Make every important user journey navigable and internally consistent.
+3. Implement realistic frontend state and data flow.
+4. Fill genuine gaps with the smallest reasonable UI or interaction.
+5. Keep the codebase maintainable and documented.
+
+Do not overengineer the MVP.
+
+## 2. Start with a design audit
+
+Before implementing anything:
+
+1. Inspect every supplied ZIP file, screenshot, exported design, asset, and available source file.
+2. Identify all unique screens, duplicate screens, alternate states, and shared components.
+3. Create a screen inventory with each screen's purpose, entry point, and exit actions.
+4. Map the screens to a user-flow diagram.
+5. Identify missing transitions, missing states, and genuine product gaps.
+6. Identify inconsistencies between the screens, such as differing labels, navigation items, or button destinations.
+
+Create these initial documentation files:
+
+- `docs/design-audit.md` — inventory of supplied screens and design observations.
+- `docs/user-flows.md` — end-to-end user journeys and navigation.
+- `docs/implementation-plan.md` — proposed architecture, implementation sequence, and known gaps.
+
+Do not treat these documents as a substitute for implementation. Complete the audit efficiently, then build the app.
+
+If a required screen is missing but can be represented as a small state within an existing screen, implement it that way. Create a new screen only when the workflow genuinely requires one.
+
+## 3. Core user journey
+
+Implement the following workflow, adapting names and destinations to match the supplied designs.
+
+### Authentication
+
+Demo login → authenticated application.
+
+### Subject setup
+
+My Subjects → Add Subject → Subject Details → Sections & Pace → Teaching Schedule → Syllabus Upload.
+
+The Create Subject flow may be a wizard or separate screens, depending on the supplied designs. Preserve the intended sequence.
+
+### Planning
+
+Syllabus Upload and Review → Pacing Matrix → Schedule Map → Teaching Plan Review → Approve Teaching Plan.
+
+The distinction between these stages matters:
+
+- **Pacing Matrix:** estimate and adjust teaching effort for topics and units.
+- **Schedule Map:** fit topics into actual available teaching slots, respecting teaching days, times, sections, holidays, and exam periods.
+- **Teaching Plan Review:** review the resulting dated sessions, identify conflicts, and approve the proposed plan.
+
+Do not merge these stages simply because they share some information.
+
+### Daily teaching workflow
+
+Home or Calendar → Teaching Session → Quick Post-Class Update.
+
+Keep the post-class interaction extremely lightweight. The teacher should be able to record whether the topic was completed, partially covered, or not covered, optionally provide a short note, and save.
+
+Only show Plan Adjustment Preview when an update creates a meaningful proposed change. Do not force teachers through a detailed adjustment screen after every class.
+
+### Adaptation
+
+Post-Class Update → Optional Plan Adjustment Preview → Apply Changes or Keep Original Plan.
+
+Show proposed changes before applying them. Preserve unaffected sessions and never silently discard topics or overwrite teacher edits.
+
+### Existing subject workspace
+
+Clicking a subject from My Subjects should open its existing Subject Overview. Use the subject tabs already established in the supplied designs, including:
+
+- Overview
+- Teaching Plan
+- Syllabus
+- Progress
+- Tests & Revision
+- Analytics
+- Team
+
+Do not create additional screens for every tab by default. If the supplied designs already cover the necessary information, implement those designs. If a tab has no design and is not essential to the core MVP journey, use a sensible lightweight placeholder or minimal state within the existing subject workspace.
+
+Do not invent complex functionality merely to populate every tab.
+
+## 4. Navigation rules
+
+Preserve the global navigation established by the designs:
+
+- Home
+- My Subjects
+- Calendar
+- Notifications
+- Settings
+
+Teacher Profile should be accessible through the avatar or profile menu, not added as a permanent navigation item.
+
+Subject-specific pages should remain within the selected subject workspace.
+
+The global Calendar is an institution-wide view of teaching sessions and academic events. It is not a replacement for the subject-level Teaching Plan.
+
+- Proposed sessions should not appear as confirmed events before plan approval.
+- Approved sessions should appear in the global Calendar.
+- Calendar events should link back to their relevant subject or session.
+- Institution holidays and exam periods must be distinguishable from teaching sessions.
+
+Keep the navigation hierarchy consistent throughout the application.
+
+## 5. Technology stack
+
+Use:
+
+- Next.js with the App Router.
+- TypeScript with strict type checking.
+- React and functional components.
+- Tailwind CSS for styling, if compatible with the supplied project.
+- A reusable component structure.
+- A lightweight icon library such as Lucide if needed.
+- React Hook Form and Zod only where they provide meaningful value for form validation.
+
+First inspect the supplied repository, if one exists. Preserve useful existing configuration and dependencies rather than rebuilding the project unnecessarily.
+
+If no project exists, create a clean Next.js App Router project using current stable, mutually compatible dependencies.
+
+Use Server Components by default. Add Client Components only where interaction or browser-side state requires them.
+
+Do not add a component library solely for convenience if it makes matching the designs harder.
+
+## 6. Demo authentication — no backend
+
+Implement a basic demo login using the following fixed credentials:
+
+- **Email:** `example@123`
+- **Password:** `123`
+
+Requirements:
+
+- Provide a login screen matching the supplied visual design where available.
+- Validate both fields.
+- On valid credentials, enter the application and show the authenticated experience.
+- On invalid credentials, display a clear inline error.
+- Provide a logout action.
+- Preserve the demo login state across ordinary page refreshes during the prototype session, if practical.
+- Keep the authentication logic isolated so real authentication can replace it later.
+
+For this prototype, session state may be simulated with client-side state and browser storage. If using browser storage, validate the stored state and avoid treating arbitrary stored values as trustworthy.
+
+**Security limitation:** this is a frontend-only demonstration, not real authentication. The credentials and validation logic will be inspectable in client-delivered code. Do not describe the demo as secure, and do not use this mechanism to protect sensitive data or authorize server operations.
+
+Do not implement:
+
+- JWTs or access tokens
+- Refresh tokens
+- OAuth
+- Password hashing
+- Backend authentication endpoints
+- A real user database
+- Email verification or password reset infrastructure
+
+Keep this deliberately simple.
+
+## 7. Frontend data model
+
+Create typed models and a small mock-data layer so screens share consistent information.
+
+At minimum, consider these entities:
+
+- Teacher
+- Subject
+- Section
+- SyllabusUnit
+- SyllabusTopic
+- TeachingSlot
+- AcademicCalendarEvent
+- TeachingSession
+- SessionOutcome
+- ScheduleChangeProposal
+- Notification
+
+Use stable IDs rather than relying on array indexes or display names as identifiers.
+
+Relationships should be explicit. For example:
+
+- A subject has units and topics.
+- A subject may be taught to multiple sections.
+- A section has a pace mode: shared initial pace or independent pace.
+- A teaching session references a subject, topic, date/time, and section.
+- A session outcome references the session it updates.
+- A proposed schedule change references the affected sessions.
+
+Use TypeScript types or interfaces and avoid `any` wherever practical.
+
+Keep example data in dedicated seed/mock files, not scattered throughout JSX components.
+
+Use realistic university examples, such as a Data Mining subject with syllabus units and topics. Clearly distinguish mock data from actual institutional data.
+
+## 8. State management and persistence
+
+This is a frontend prototype. Do not add a database or backend.
+
+Choose the simplest appropriate state strategy:
+
+- React state and context for shared application state.
+- A small reducer or lightweight store if cross-screen workflows become difficult to manage.
+- Browser storage for persisting demo data between refreshes when useful.
+
+Do not introduce Redux or another state library without a clear need.
+
+Implement the important workflow state transitions:
+
+1. Create and edit a subject.
+2. Select sections and define teaching slots.
+3. Upload or enter syllabus content.
+4. Review and edit extracted units and topics.
+5. Adjust topic effort in the Pacing Matrix.
+6. Generate a proposed schedule from available teaching slots.
+7. Review and approve the plan.
+8. Show approved sessions in the Calendar.
+9. Record post-class outcomes.
+10. Preview and apply or reject proposed schedule adjustments.
+
+A page refresh should not unexpectedly erase an in-progress workflow if the current persistence approach can reasonably preserve it.
+
+If data is lost or reset, make the demo behavior clear rather than silently pretending it is persisted on a server.
+
+## 9. Simulated syllabus extraction
+
+There is no real AI service or backend in this MVP.
+
+Implement a convincing frontend simulation:
+
+- Allow file selection for supported syllabus formats.
+- Display selected file information.
+- Provide a manual text-entry alternative.
+- When the teacher selects “Extract syllabus”, simulate an extraction state and then show editable sample units and topics.
+- Let the teacher review, add, edit, remove, and reorder topics where appropriate.
+- Include loading, empty, error, and success states where they materially improve the workflow.
+
+Do not claim to parse every uploaded file accurately if the implementation is only a simulation.
+
+If real parsing is not implemented, label the extraction behavior appropriately in code documentation and the demo experience where needed.
+
+## 10. Simulated pacing and schedule generation
+
+Implement a deterministic, explainable frontend planning algorithm. Do not integrate an external AI API.
+
+The Pacing Matrix should allow teachers to adjust topic complexity, importance, and estimated teaching effort.
+
+The Schedule Map should use:
+
+- Confirmed syllabus topics
+- Estimated teaching effort
+- Selected sections and pace mode
+- Teacher-defined weekly teaching slots
+- The chosen planning period
+- Institution holidays and blocked academic dates
+- Any existing manually edited sessions
+
+Use the available inputs to generate a proposed sequence of dated sessions.
+
+Requirements:
+
+- Never schedule a class on a blocked date or outside the selected teaching slots.
+- Keep topics in syllabus order by default.
+- Flag topics that cannot fit in the planning period.
+- Flag conflicting or insufficient teaching slots.
+- Show when the estimated completion date cannot be calculated.
+- Do not silently omit topics.
+- Preserve manual changes where possible.
+- Require teacher approval before proposed sessions become confirmed calendar events.
+
+Document the algorithm's assumptions and limitations in `docs/planning-logic.md`.
+
+Do not present simple heuristic scheduling as sophisticated AI.
+
+## 11. Adaptive scheduling behavior
+
+Implement a minimal but coherent feedback loop.
+
+After a session outcome is recorded:
+
+- **Completed:** mark the topic or session complete. Keep the future schedule unchanged unless other evidence requires an adjustment.
+- **Partially covered:** propose an additional session or remaining effort for the unfinished topic.
+- **Not covered:** propose moving the topic to an appropriate available slot.
+
+When relevant, account for section-specific progress.
+
+A schedule adjustment must be a proposal until the teacher explicitly applies it. Provide a way to retain the original plan.
+
+When applying a proposal:
+
+- Update only the affected sessions.
+- Preserve unrelated sessions.
+- Respect holidays, teaching availability, and section assignments.
+- Flag unresolved conflicts rather than silently generating an invalid plan.
+
+The logic should be deterministic and easy to test. Do not build a complex optimization engine for the MVP.
+
+## 12. UI implementation requirements
+
+The supplied designs are the source of truth for layout and visual style.
+
+Study the designs before deciding on component sizes, spacing, typography, colors, borders, cards, or navigation.
+
+Maintain a shared design system and reusable components where they are genuinely repeated, such as:
+
+- App shell and navigation
+- Subject tabs
+- Breadcrumbs
+- Buttons and form controls
+- Progress indicators
+- Session rows
+- Status labels
+- Empty states
+- Dialogs and confirmation states
+
+Avoid forcing every screen into the same card-heavy layout.
+
+The visual design should remain clean, restrained, responsive, and teacher-friendly.
+
+In particular, daily workflows must stay lightweight:
+
+- Post-class update should be possible in roughly 10–20 seconds.
+- Use one primary question, one optional follow-up, and one save action.
+- Keep notes optional and hidden until requested.
+- Show adjustment controls only when meaningful changes are needed.
+
+Do not add large dashboards, redundant metrics, unnecessary fields, or administrative reporting forms.
+
+## 13. Real interactions and navigation
+
+Every visible interactive control must have a meaningful behavior.
+
+Examples:
+
+- Buttons navigate, submit, save, confirm, or cancel as their labels indicate.
+- Subject cards open the selected subject.
+- Subject tabs switch to the corresponding subject content.
+- Forms validate and show errors.
+- Filters and selectors affect displayed data.
+- Edit and delete actions update local state.
+- Approving a plan changes its status and updates the Calendar.
+- Rejecting a proposed change leaves the approved plan unchanged.
+- Logout returns the user to the login screen.
+
+Do not create decorative buttons that do nothing.
+
+Use Next.js navigation correctly. Avoid full-page reloads for ordinary internal navigation.
+
+Use appropriate form semantics, accessible labels, keyboard navigation, and clear focus states.
+
+## 14. Code quality and architecture
+
+Organize the project by clear responsibilities. A reasonable starting structure is:
+
+- `src/app/` — routes and layouts
+- `src/components/` — reusable UI components
+- `src/features/` — subject, syllabus, planning, calendar, and session workflows
+- `src/lib/` — utilities, demo authentication, storage, and shared helpers
+- `src/types/` — shared TypeScript models
+- `src/data/` — mock data and seed fixtures
+- `docs/` — architecture, flows, planning logic, and setup documentation
+
+Adapt this structure if the supplied project already has a sensible architecture.
+
+Requirements:
+
+- Strict TypeScript.
+- Small, cohesive components.
+- Clear separation between UI, domain logic, mock data, and persistence.
+- No giant monolithic page components.
+- Avoid duplicating scheduling or validation logic across screens.
+- Use consistent naming and predictable file organization.
+- Handle loading, empty, error, and success states appropriately.
+- Avoid unnecessary dependencies and abstractions.
+- Keep the project easy for another developer to understand and extend.
+
+### Comments and documentation
+
+I want deep documentation, but **not comments on every line of code**.
+
+Write useful comments where they explain:
+
+- Why a decision was made.
+- Important domain rules.
+- Non-obvious state transitions.
+- Scheduling assumptions and edge cases.
+- Temporary mock behavior that will later need a backend.
+- Any workaround that future developers should know about.
+
+Use TypeScript types and descriptive function names instead of comments that merely restate the code.
+
+Document public utility functions and non-obvious algorithms. Keep ordinary JSX readable without excessive commentary.
+
+## 15. Required README and documentation
+
+Create a complete root `README.md` that includes:
+
+- Product overview
+- Implemented features
+- Tech stack
+- Prerequisites
+- Installation
+- Development commands
+- Production build and run commands
+- Demo login credentials
+- Authentication limitations
+- Mock-data and browser-storage behavior
+- Syllabus extraction simulation details
+- Scheduling algorithm overview
+- Project structure
+- Known limitations
+- Suggested next steps for adding a backend
+
+Also create, as appropriate:
+
+- `docs/architecture.md`
+- `docs/user-flows.md`
+- `docs/design-audit.md`
+- `docs/planning-logic.md`
+- `docs/implementation-plan.md`
+- `docs/known-limitations.md`
+
+Keep documentation aligned with the actual code. Do not claim a feature exists if it has not been implemented.
+
+## 16. Testing and verification
+
+After implementation:
+
+1. Run TypeScript checks.
+2. Run linting.
+3. Run the production build.
+4. Fix errors rather than merely listing them.
+5. Test the demo login with valid and invalid credentials.
+6. Test creating a subject and progressing through the setup flow.
+7. Test syllabus review and editing.
+8. Test the pacing-to-schedule-to-approval workflow.
+9. Verify that unapproved sessions do not appear as confirmed Calendar events.
+10. Test post-class updates and schedule-change acceptance/rejection.
+11. Verify refresh behavior for persisted demo state.
+12. Check responsive layouts and obvious accessibility issues.
+
+If browser automation or a browser preview is available, use it to inspect the actual application and test important journeys.
+
+Do not report checks as passed unless you actually ran them.
+
+## 17. Scope boundaries
+
+This deliverable is a **frontend MVP**, not a production SaaS.
+
+Do not implement a backend, database, production authentication, real AI calls, email/SMS integrations, payment functionality, or multi-user synchronization.
+
+Do not add features simply because they might be useful later.
+
+The objective is a complete and credible frontend demonstration of the core product workflow, with realistic local state and clear architecture for future expansion.
+
+## 18. Final delivery requirements
+
+Deliver the actual working Next.js project, not just code snippets or a plan.
+
+At completion, report:
+
+1. Screens implemented from the supplied designs.
+2. Any missing screens or states you added, and why.
+3. Core user journeys implemented.
+4. Demo credentials.
+5. Project setup and run commands.
+6. Documentation files created.
+7. Tests, linting, and build checks actually run.
+8. Known limitations and any unfinished work.
+
+If the project is too large to complete in one pass, prioritize a fully navigable, coherent end-to-end core workflow over superficial implementation of every secondary screen. Clearly identify unfinished items rather than pretending the MVP is complete.
