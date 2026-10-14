@@ -147,6 +147,21 @@ export function PlannerApp() {
     }));
   }
 
+  function patchSession(sessionId: string, patch: Partial<import("@/types").TeachingSession>) {
+    setData((current) => ({
+      ...current,
+      sessions: current.sessions.map((item) => item.id === sessionId ? { ...item, ...patch } : item),
+    }));
+  }
+
+  function removeSession(sessionId: string) {
+    setData((current) => ({
+      ...current,
+      sessions: current.sessions.filter((item) => item.id !== sessionId),
+    }));
+    showToast("Session excluded from plan.");
+  }
+
   function selectSubject(id: string, nextView: View = "subject") {
     setSubjectId(id);
     setView(nextView);
@@ -306,7 +321,7 @@ export function PlannerApp() {
   } else if (view === "schedule" && subject) {
     content = <ScheduleScreen subject={subject} sessions={data.sessions.filter((session) => session.subjectId === subject.id)} onChangeSubject={(patch) => updateSubject(subject.id, patch)} onGenerate={generateProposal} onBack={() => setView("pacing")} onReview={() => setView("review")} />;
   } else if (view === "review" && subject) {
-    content = <ReviewScreen subject={subject} sessions={data.sessions.filter((session) => session.subjectId === subject.id)} onApprove={approvePlan} onBack={() => setView("schedule")} onEdit={() => setView("schedule")} />;
+    content = <ReviewScreen subject={subject} sessions={data.sessions.filter((session) => session.subjectId === subject.id)} onApprove={approvePlan} onBack={() => setView("schedule")} onEdit={() => setView("schedule")} onPatchSession={patchSession} onRemoveSession={removeSession} />;
   } else if (view === "calendar") {
     content = <CalendarScreen sessions={data.sessions} subjects={data.subjects} events={academicEvents} onUpdate={beginUpdate} onSubject={(id) => selectSubject(id)} />;
   } else if (view === "update" && subject) {

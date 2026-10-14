@@ -296,7 +296,35 @@ export function CreateSubjectScreen({
         </div>}
         {step === 1 && <div className="form-grid">
           <label className="field field-wide"><span>Sections / cohorts <small>Separate with commas</small></span><input value={draft.sections} onChange={(event) => change("sections", event.target.value)} placeholder="MCA 3A, MCA 3B" /></label>
-          <fieldset className="field field-wide"><legend>How should pacing work across sections?</legend><div className="choice-grid"><label className={`choice-card ${draft.paceMode === "shared" ? "choice-selected" : ""}`}><input type="radio" name="pace" checked={draft.paceMode === "shared"} onChange={() => change("paceMode", "shared")} /><strong>Shared initial pace</strong><small>Plan one common sequence for all selected sections.</small></label><label className={`choice-card ${draft.paceMode === "independent" ? "choice-selected" : ""}`}><input type="radio" name="pace" checked={draft.paceMode === "independent"} onChange={() => change("paceMode", "independent")} /><strong>Independent pace</strong><small>Keep cohort progress separate in the prototype.</small></label></div></fieldset>
+          <fieldset className="field field-wide">
+            <legend>How should pacing work across sections?</legend>
+            <div className="choice-grid">
+              <label className={`choice-card ${draft.paceMode === "shared" ? "choice-selected" : ""}`}>
+                <div className="choice-header">
+                  <strong>Shared initial pace</strong>
+                  <input
+                    type="radio"
+                    name="pace"
+                    checked={draft.paceMode === "shared"}
+                    onChange={() => change("paceMode", "shared")}
+                  />
+                </div>
+                <small>Plan one common sequence for all selected sections.</small>
+              </label>
+              <label className={`choice-card ${draft.paceMode === "independent" ? "choice-selected" : ""}`}>
+                <div className="choice-header">
+                  <strong>Independent pace</strong>
+                  <input
+                    type="radio"
+                    name="pace"
+                    checked={draft.paceMode === "independent"}
+                    onChange={() => change("paceMode", "independent")}
+                  />
+                </div>
+                <small>Keep cohort progress separate in the prototype.</small>
+              </label>
+            </div>
+          </fieldset>
           <label className="field"><span>Planning starts</span><input type="date" value={draft.planStart} onChange={(event) => change("planStart", event.target.value)} /></label><label className="field"><span>Planning ends</span><input type="date" value={draft.planEnd} onChange={(event) => change("planEnd", event.target.value)} /></label>
         </div>}
         {step === 2 && <div className="schedule-setup">
@@ -354,8 +382,8 @@ export function SyllabusScreen({
     onSave([...subject.units, { id, title: "New syllabus unit", description: "Add a unit summary.", topicIds: [] }], subject.topics);
     setExpanded(id);
   }
-  function editUnit(unitId: string, title: string) {
-    onSave(subject.units.map((unit) => unit.id === unitId ? { ...unit, title } : unit), subject.topics);
+  function editUnit(unitId: string, patch: Partial<Subject["units"][number]>) {
+    onSave(subject.units.map((unit) => unit.id === unitId ? { ...unit, ...patch } : unit), subject.topics);
   }
   function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -379,7 +407,7 @@ export function SyllabusScreen({
         <div className="section-title-row"><div><p className="eyebrow">Review before planning</p><h2>Extracted syllabus structure</h2></div><div className="action-row"><Button onClick={addUnit} icon={<Plus size={15} />}>Add unit</Button><Button variant="primary" onClick={onNext} arrow>Continue to pacing</Button></div></div>
         <div className="unit-list">{subject.units.map((unit, index) => <section className="unit-card" key={unit.id}>
           <button className="unit-summary" type="button" onClick={() => setExpanded(expanded === unit.id ? null : unit.id)} aria-expanded={expanded === unit.id}><span className="unit-number">{String(index + 1).padStart(2, "0")}</span><span className="unit-title-wrap"><strong>{unit.title}</strong><small>{unit.topicIds.length} topics · {subject.topics.filter((topic) => topic.unitId === unit.id).reduce((sum, topic) => sum + topic.estimatedHours, 0)} estimated hours</small></span><ChevronRight size={16} className={expanded === unit.id ? "chevron-open" : ""} /></button>
-          {expanded === unit.id && <div className="unit-body"><label className="field"><span>Unit title</span><input value={unit.title} onChange={(event) => editUnit(unit.id, event.target.value)} /></label><p className="unit-description">{unit.description}</p><div className="topic-table">{subject.topics.filter((topic) => topic.unitId === unit.id).map((topic, topicIndex) => <div className="topic-edit-row" key={topic.id}><span className="topic-index">{index + 1}.{topicIndex + 1}</span><div className="topic-edit-fields"><input aria-label="Topic title" value={topic.title} onChange={(event) => editTopic(topic.id, { title: event.target.value })} /><select aria-label="Topic complexity" value={topic.complexity} onChange={(event) => editTopic(topic.id, { complexity: event.target.value as Complexity })}><option>Foundational</option><option>Moderate</option><option>Advanced</option></select><input aria-label="Estimated hours" type="number" min="0.5" step="0.5" value={topic.estimatedHours} onChange={(event) => editTopic(topic.id, { estimatedHours: Number(event.target.value) || 0.5 })} /></div><button type="button" className="icon-button remove-topic" onClick={() => removeTopic(topic.id)} aria-label={`Remove ${topic.title}`}>×</button></div>)}</div><button type="button" className="inline-link add-topic" onClick={() => addTopic(unit.id)}><Plus size={14} /> Add topic</button></div>}
+          {expanded === unit.id && <div className="unit-body"><div className="form-grid" style={{ marginBottom: "12px" }}><label className="field"><span>Unit title</span><input value={unit.title} onChange={(event) => editUnit(unit.id, { title: event.target.value })} /></label><label className="field"><span>Unit description & scope</span><input value={unit.description} onChange={(event) => editUnit(unit.id, { description: event.target.value })} placeholder="Short summary of unit..." /></label></div><div className="topic-table">{subject.topics.filter((topic) => topic.unitId === unit.id).map((topic, topicIndex) => <div className="topic-edit-row" key={topic.id}><span className="topic-index">{index + 1}.{topicIndex + 1}</span><div className="topic-edit-fields"><input aria-label="Topic title" placeholder="Topic title" value={topic.title} onChange={(event) => editTopic(topic.id, { title: event.target.value })} /><input aria-label="Topic description" placeholder="Short description" value={topic.description} onChange={(event) => editTopic(topic.id, { description: event.target.value })} /><select aria-label="Topic complexity" value={topic.complexity} onChange={(event) => editTopic(topic.id, { complexity: event.target.value as Complexity })}><option>Foundational</option><option>Moderate</option><option>Advanced</option></select><select aria-label="Topic importance" value={topic.importance} onChange={(event) => editTopic(topic.id, { importance: event.target.value as Importance })}><option>Core</option><option>Supporting</option><option>Enrichment</option></select><input aria-label="Estimated hours" type="number" min="0.5" step="0.5" value={topic.estimatedHours} onChange={(event) => editTopic(topic.id, { estimatedHours: Number(event.target.value) || 0.5 })} /></div><button type="button" className="icon-button remove-topic" onClick={() => removeTopic(topic.id)} aria-label={`Remove ${topic.title}`}>×</button></div>)}</div><button type="button" className="inline-link add-topic" onClick={() => addTopic(unit.id)}><Plus size={14} /> Add topic</button></div>}
         </section>)}</div>
       </>}
       {subject.units.length === 0 && <div className="info-banner"><Sparkles size={17} /><span>Once an outline is added, you can review and edit every extracted unit and topic here before pacing.</span></div>}
@@ -469,23 +497,62 @@ export function ReviewScreen({
   onApprove,
   onBack,
   onEdit,
+  onPatchSession,
+  onRemoveSession,
 }: {
   subject: Subject;
   sessions: TeachingSession[];
   onApprove: () => void;
   onBack: () => void;
   onEdit: () => void;
+  onPatchSession?: (sessionId: string, patch: Partial<TeachingSession>) => void;
+  onRemoveSession?: (sessionId: string) => void;
 }) {
+  const [editingId, setEditingId] = useState<string | null>(null);
   const pending = sessions.filter((session) => session.status === "proposed");
   const visible = sessions.filter((session) => session.status === "proposed" || session.status === "approved").sort((a, b) => `${a.date}${a.startTime}`.localeCompare(`${b.date}${b.startTime}`));
   return (
     <div className="screen-stack">
       <div className="breadcrumbs"><span>My Subjects</span><ChevronRight size={13} /><span>{subject.code}</span><ChevronRight size={13} /><span>Teaching plan review</span></div>
-      <PageHeading eyebrow={`${subject.code} · Course architecture`} title="Review your teaching plan" description="Check the dated sessions before confirming. Only approved sessions appear as confirmed events in Calendar." action={<div className="action-row"><Button onClick={onEdit}>Back to schedule map</Button><Button variant="primary" onClick={onApprove} disabled={pending.length === 0} icon={<Check size={15} />}>Approve plan</Button></div>} />
+      <PageHeading eyebrow={`${subject.code} · Course architecture`} title="Review your teaching plan" description="Check the dated sessions before confirming. You can adjust session dates, topics, times, or exclude sessions before approving." action={<div className="action-row"><Button onClick={onEdit}>Back to schedule map</Button><Button variant="primary" onClick={onApprove} disabled={pending.length === 0} icon={<Check size={15} />}>Approve plan</Button></div>} />
       <div className="summary-strip"><div><span>Proposed sessions</span><strong>{pending.length} to approve</strong></div><div><span>Sections</span><strong>{subject.sections.join(" & ") || "Not set"}</strong></div><div><span>Teaching days</span><strong>{subject.slots.length} weekly slots</strong></div><div><span>Approval state</span><strong>{pending.length ? "Awaiting your review" : "No proposed changes"}</strong></div></div>
       {pending.length === 0 && <div className="info-banner"><Check size={16} /><span>There are no unapproved sessions for this subject. Regenerate a schedule to review a new proposal.</span></div>}
       <section className="panel review-list"><div className="panel-heading"><div><p className="eyebrow">Detailed session schedule</p><h2>Sessions in syllabus order</h2></div><Tag tone={pending.length ? "amber" : "sage"}>{pending.length ? "Awaiting approval" : "Reviewed"}</Tag></div>
-        {visible.length ? <div className="session-list">{visible.map((session, index) => { const topic = subject.topics.find((item) => item.id === session.topicId); return <div className="review-session" key={session.id}><span className={`review-number ${session.status === "approved" ? "review-approved" : ""}`}>{String(index + 1).padStart(2, "0")}</span><div className="date-block"><strong>{new Date(`${session.date}T12:00:00`).getDate()}</strong><span>{new Date(`${session.date}T12:00:00`).toLocaleDateString("en-IN", { month: "short" })}</span></div><div className="review-session-main"><strong>{topic?.title ?? "Teaching session"}</strong><span>{formatDate(session.date)} · {session.startTime}–{session.endTime} · {session.sectionIds.join(", ")}</span></div><Tag tone={session.status === "approved" ? "sage" : "amber"}>{session.status === "approved" ? "Confirmed" : "Proposed"}</Tag></div>; })}</div> : <EmptyState title="No sessions to review" description="Create a subject and generate a schedule first." />}
+        {visible.length ? <div className="session-list">{visible.map((session, index) => {
+          const topic = subject.topics.find((item) => item.id === session.topicId);
+          const isEditing = editingId === session.id;
+          return (
+            <div key={session.id}>
+              <div className="review-session">
+                <span className={`review-number ${session.status === "approved" ? "review-approved" : ""}`}>{String(index + 1).padStart(2, "0")}</span>
+                <div className="date-block"><strong>{new Date(`${session.date}T12:00:00`).getDate()}</strong><span>{new Date(`${session.date}T12:00:00`).toLocaleDateString("en-IN", { month: "short" })}</span></div>
+                <div className="review-session-main"><strong>{topic?.title ?? "Teaching session"}</strong><span>{formatDate(session.date)} · {session.startTime}–{session.endTime} · {session.sectionIds.join(", ")}</span></div>
+                <div className="review-session-actions">
+                  <Tag tone={session.status === "approved" ? "sage" : "amber"}>{session.status === "approved" ? "Confirmed" : "Proposed"}</Tag>
+                  {session.status === "proposed" && onPatchSession && (
+                    <button type="button" className="text-action" onClick={() => setEditingId(isEditing ? null : session.id)} style={{ fontSize: "10px", padding: "2px 6px", cursor: "pointer", background: "none", border: "none", color: "var(--sage)" }}>
+                      {isEditing ? "Close" : "Edit"}
+                    </button>
+                  )}
+                </div>
+              </div>
+              {isEditing && onPatchSession && (
+                <div className="review-session-edit">
+                  <div className="review-session-edit-grid">
+                    <label className="field"><span>Assigned topic</span><select value={session.topicId} onChange={(event) => onPatchSession(session.id, { topicId: event.target.value })}>{subject.topics.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}</select></label>
+                    <label className="field"><span>Session date</span><input type="date" value={session.date} onChange={(event) => onPatchSession(session.id, { date: event.target.value })} /></label>
+                    <label className="field"><span>Start time</span><input type="time" value={session.startTime} onChange={(event) => onPatchSession(session.id, { startTime: event.target.value })} /></label>
+                    <label className="field"><span>End time</span><input type="time" value={session.endTime} onChange={(event) => onPatchSession(session.id, { endTime: event.target.value })} /></label>
+                  </div>
+                  <div className="review-session-edit-actions">
+                    {onRemoveSession && <Button type="button" variant="danger" onClick={() => { onRemoveSession(session.id); setEditingId(null); }}>Exclude from plan</Button>}
+                    <Button type="button" variant="secondary" onClick={() => setEditingId(null)}>Done</Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}</div> : <EmptyState title="No sessions to review" description="Create a subject and generate a schedule first." />}
       </section>
       <div className="bottom-actions"><Button variant="quiet" onClick={onBack}>Back</Button><Button variant="primary" onClick={onApprove} disabled={pending.length === 0} icon={<Check size={15} />}>Approve {pending.length} sessions</Button></div>
     </div>
