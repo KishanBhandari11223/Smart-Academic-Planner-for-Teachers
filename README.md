@@ -1,4 +1,4 @@
-# Adaptive Teaching Planner
+# Adaptive Teaching Planner | Under Development
 
 A university teaching planner with a React/Vite frontend and a Spring Boot backend. Sign-in and a versioned planner-workspace API use Spring; the current UI data is stored per teacher in MySQL while the planner screens are progressively mapped to the backend's normalized domain services.
 
