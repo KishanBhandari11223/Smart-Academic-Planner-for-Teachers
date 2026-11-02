@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="shell(content, active, pageTitle)" class="app-body">
+<div class="app-shell">
+    <aside class="app-sidebar" aria-label="Planner navigation">
+        <a class="app-brand" th:href="@{/}">
+            <span class="brand-mark" aria-hidden="true">ATP</span>
+            <span class="brand-copy"><strong>Teaching Planner</strong><small>Adaptive Curriculum</small></span>
+        </a>
+        <div class="nav-section-label">Instructional workspace</div>
+        <nav class="app-nav">
+            <a th:href="@{/}" th:classappend="${active == 'home'} ? ' is-active' : ''"><span class="nav-symbol" aria-hidden="true">⌂</span>Home</a>
+            <a th:href="@{/subjects}" th:classappend="${active == 'subjects'} ? ' is-active' : ''"><span class="nav-symbol" aria-hidden="true">▤</span>My Subjects</a>
+            <a th:href="@{/calendar}" th:classappend="${active == 'calendar'} ? ' is-active' : ''"><span class="nav-symbol" aria-hidden="true">▦</span>Calendar</a>
+            <a th:href="@{/progress}" th:classappend="${active == 'progress'} ? ' is-active' : ''"><span class="nav-symbol" aria-hidden="true">◷</span>Progress</a>
+        </nav>
+        <div class="sidebar-account">
+            <span class="account-avatar" aria-hidden="true">T</span>
+            <a class="account-profile" th:href="@{/profile}" th:classappend="${active == 'profile'} ? ' profile-active' : ''"><span class="account-copy"><strong th:text="${currentTeacherEmail} ?: 'Teacher account'">Teacher account</strong><small>Profile and teaching overview</small></span></a>
+            <form method="post" th:action="@{/logout}"><button type="submit" class="sidebar-signout">Sign out</button></form>
+        </div>
+    </aside>
+    <div class="workspace-main">
+        <header class="workspace-topbar">
+            <div class="topbar-context"><span class="topbar-indicator"></span><span>Adaptive Teaching Planner</span><span class="topbar-divider">/</span><strong th:text="${pageTitle}">Workspace</strong></div>
+            <div class="topbar-actions">
+                <a class="topbar-profile-link" th:href="@{/profile}">Profile</a>
+                <a class="button-link topbar-action" th:href="@{/subjects/new}">Add subject</a>
+                <form method="post" th:action="@{/logout}"><button class="topbar-signout" type="submit">Sign out</button></form>
+            </div>
+        </header>
+        <div class="workspace-content" th:replace="${content}">
+            <main class="planner-page"></main>
+        </div>
+    </div>
+</div>
+</body>
+</html>

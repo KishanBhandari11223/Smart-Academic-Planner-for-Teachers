@@ -1,0 +1,8 @@
+CREATE TABLE planner_workspaces (
+    teacher_id CHAR(36) NOT NULL PRIMARY KEY,
+    data JSON NOT NULL,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    CONSTRAINT fk_planner_workspaces_teacher FOREIGN KEY (teacher_id) REFERENCES users (id) ON DELETE CASCADE
+);

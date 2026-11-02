@@ -1,0 +1,18 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Class update · Adaptive Teaching Planner</title><link rel="stylesheet" th:href="@{/styles.css}"></head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'calendar', 'Class update')}"><main class="planner-page class-update-page">
+    <header class="page-header"><div><a class="back-link" th:href="@{/calendar}">← Calendar</a><p class="eyebrow">Class reflection / Session update</p><h1>How did the class go?</h1><p class="intro">Record what the class covered. An unfinished lesson can be proposed for a follow-up time.</p></div></header>
+    <section class="class-session-summary"><div><p class="eyebrow" th:text="|${session.plan.section.subject.name} · ${session.plan.section.name}|">Subject · Section</p><h2 th:text="${session.topicTitleSnapshot}">Topic</h2><p th:text="${session.unitNameSnapshot}">Unit</p></div><div class="class-session-time"><span>Scheduled session</span><strong th:text="${session.scheduledDate}">Date</strong><strong th:text="|${session.startTime}–${session.endTime}|">Time</strong><small th:text="|${session.effortMinutes} minutes planned|">Duration</small></div></section>
+    <section class="content-section class-update-content"><div class="section-heading"><div><p class="eyebrow">Progress record</p><h2>Session outcome</h2><p class="intro">How much of this lesson did the class cover?</p></div></div>
+        <form class="planner-form panel class-update-form" method="post" th:action="@{/calendar/sessions/{id}/log(id=${session.id})}">
+            <fieldset class="outcome-picker"><legend>Overall topic coverage</legend><label><input type="radio" name="outcome" value="NOT_COVERED" required><span>Not covered</span></label><label><input type="radio" name="outcome" value="PARTIAL"><span>Partly covered</span></label><label><input type="radio" name="outcome" value="COMPLETED"><span>Completed</span></label></fieldset>
+            <div class="covered-minutes-field"><label for="covered-minutes">Minutes covered <span>Required for partial coverage</span></label><input id="covered-minutes" name="coveredMinutes" type="number" min="1" th:max="${session.effortMinutes - 1}" th:placeholder="|1 to ${session.effortMinutes - 1}|" disabled><p class="field-help" th:text="|Planned effort: ${session.effortMinutes} minutes.|">Planned effort</p></div>
+            <div><label for="notes">Teacher notes <span>Optional · up to 2,000 characters</span></label><textarea id="notes" name="notes" rows="5" maxlength="2000" placeholder="What did the class complete? What needs another lesson?"></textarea></div>
+            <p class="update-impact-note">If coverage is partial or not completed, the planner may suggest a follow-up session. You will review it before it is added to your calendar.</p>
+            <div class="form-actions"><a class="button-link secondary-link" th:href="@{/calendar}">Cancel</a><button class="button-link" type="submit">Save class update</button></div>
+        </form>
+    </section>
+    <script>const outcomes=document.querySelectorAll('input[name="outcome"]');const minutes=document.getElementById('covered-minutes');const update=()=>{const selected=document.querySelector('input[name="outcome"]:checked');const partial=selected?.value==='PARTIAL';minutes.required=partial;minutes.disabled=!partial;};outcomes.forEach((input)=>input.addEventListener('change',update));update();</script>
+</main>
+</body></html>

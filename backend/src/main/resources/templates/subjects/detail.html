@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${subject.name} + ' · Adaptive Teaching Planner'">Subject overview</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'subjects', 'Subject overview')}" class="app-body">
+<main class="planner-page subject-overview-page">
+    <nav class="subject-breadcrumb" aria-label="Breadcrumb">
+        <a th:href="${showArchived} ? @{/subjects(archived=true)} : @{/subjects}">My Subjects</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page" th:text="${subject.name}">Subject name</span>
+    </nav>
+
+    <header class="subject-overview-hero">
+        <div class="subject-overview-title">
+            <div class="subject-overview-status-row">
+                <span class="status-pill" th:classappend="${subject.archived} ? ' is-archived' : ''" th:text="${subject.archived} ? 'Archived subject' : 'Active subject'">Active subject</span>
+                <span class="subject-overview-note" th:if="${showArchived}">Viewing archived sections</span>
+            </div>
+            <h1 th:text="${subject.name}">Subject name</h1>
+            <p class="subject-overview-description" th:text="${subject.description} ?: 'Add planning notes to describe this subject.'">Subject description</p>
+        </div>
+        <div class="subject-overview-actions">
+            <a class="button-link subject-primary-action" th:href="@{/subjects/{id}/syllabus(id=${subject.id})}">Manage syllabus</a>
+            <a class="button-link secondary-link" th:href="@{/subjects/{id}/edit(id=${subject.id})}">Edit details</a>
+            <form method="post" th:action="@{/subjects/{id}/archive(id=${subject.id})}">
+                <input type="hidden" name="archived" th:value="${!subject.archived}">
+                <button class="button-link secondary-link" type="submit" th:text="${subject.archived} ? 'Restore subject' : 'Archive subject'">Archive subject</button>
+            </form>
+        </div>
+    </header>
+
+    <p class="notice" role="status" th:if="${message}" th:text="${message}"></p>
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+
+    <section class="subject-overview-metrics" aria-label="Saved subject totals">
+        <article class="subject-overview-metric">
+            <span th:text="${showArchived} ? 'Archived sections' : 'Active sections'">Active sections</span>
+            <strong th:text="${sections.size()}">0</strong>
+        </article>
+        <article class="subject-overview-metric">
+            <span>Syllabus units</span>
+            <strong th:text="${unitCount}">0</strong>
+        </article>
+        <article class="subject-overview-metric">
+            <span>Syllabus topics</span>
+            <strong th:text="${topicCount}">0</strong>
+        </article>
+        <article class="subject-overview-metric" th:if="${!showArchived}">
+            <span>Weekly teaching slots</span>
+            <strong th:text="${weeklySlotCount}">0</strong>
+        </article>
+    </section>
+
+    <div class="subject-overview-grid">
+        <div class="subject-overview-main-column">
+            <section class="overview-panel" aria-labelledby="sections-heading">
+                <header class="overview-panel-heading">
+                    <div>
+                        <p class="eyebrow">Teaching groups</p>
+                        <h2 id="sections-heading" th:text="${showArchived} ? 'Archived sections' : 'Teaching sections'">Teaching sections</h2>
+                    </div>
+                    <a class="text-link" th:href="${showArchived} ? @{/subjects/{id}(id=${subject.id})} : @{/subjects/{id}(id=${subject.id},archived=true)}"
+                       th:text="${showArchived} ? 'View active' : 'View archived'">View archived</a>
+                </header>
+
+                <div class="overview-empty-state" th:if="${#lists.isEmpty(sections)}">
+                    <p th:text="${showArchived} ? 'No sections have been archived.' : 'No teaching sections have been added yet.'">No teaching sections have been added yet.</p>
+                    <small th:if="${!showArchived and !subject.archived}">Add a section to record the groups you teach for this subject.</small>
+                </div>
+
+                <div class="overview-section-list" th:if="${!#lists.isEmpty(sections)}">
+                    <article class="overview-section-card" th:each="section : ${sections}">
+                        <div class="overview-section-copy">
+                            <div class="overview-section-title-row">
+                                <h3><a th:href="@{/sections/{id}(id=${section.id})}" th:text="${section.name}">Section name</a></h3>
+                                <span class="status-pill" th:classappend="${section.archived} ? ' is-archived' : ''" th:text="${section.archived} ? 'Archived' : 'Active'">Active</span>
+                            </div>
+                            <p class="overview-section-term" th:text="${section.termLabel} ?: 'Term not specified'">Term</p>
+                            <ul class="slot-summary" th:if="${!#lists.isEmpty(section.weeklySlots)}">
+                                <li th:each="slot : ${section.weeklySlots}">
+                                    <span th:text="${#strings.capitalize(#strings.toLowerCase(slot.dayOfWeek.name()))}">Monday</span>
+                                    <span th:text="|${slot.startTime}–${slot.endTime}|">09:00–10:00</span>
+                                </li>
+                            </ul>
+                            <p class="overview-no-slots" th:if="${#lists.isEmpty(section.weeklySlots) and !section.archived}">No weekly teaching times added yet.</p>
+                        </div>
+                        <a class="overview-open-section" th:href="@{/sections/{id}(id=${section.id})}">Open section <span aria-hidden="true">→</span></a>
+                    </article>
+                </div>
+
+                <div class="overview-add-section" th:if="${!subject.archived and !showArchived}">
+                    <div class="overview-add-section-heading">
+                        <p class="eyebrow">Next step</p>
+                        <h3>Add a teaching section</h3>
+                    </div>
+                    <form class="planner-form overview-section-form" method="post" th:action="@{/subjects/{id}/sections(id=${subject.id})}">
+                        <div class="overview-section-fields">
+                            <div>
+                                <label for="section-name">Section name <span>Required</span></label>
+                                <input id="section-name" name="name" type="text" maxlength="120" required placeholder="For example, Section A"
+                                       th:value="${sectionName}">
+                            </div>
+                            <div>
+                                <label for="term-label">Term or academic session <span>Optional</span></label>
+                                <input id="term-label" name="termLabel" type="text" maxlength="120" placeholder="For example, Fall 2026"
+                                       th:value="${termLabel}">
+                            </div>
+                        </div>
+                        <div class="form-actions"><button class="button-link subject-primary-action" type="submit">Add section</button></div>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <aside class="subject-overview-side-column">
+            <section class="overview-panel syllabus-overview-panel" aria-labelledby="syllabus-overview-heading">
+                <header class="overview-panel-heading">
+                    <div>
+                        <p class="eyebrow">Curriculum structure</p>
+                        <h2 id="syllabus-overview-heading">Syllabus overview</h2>
+                    </div>
+                    <a class="text-link" th:href="@{/subjects/{id}/syllabus(id=${subject.id})}">Open <span aria-hidden="true">→</span></a>
+                </header>
+                <div class="syllabus-overview-empty" th:if="${#lists.isEmpty(units)}">
+                    <p>No units or topics have been added yet.</p>
+                    <a class="button-link secondary-link" th:href="@{/subjects/{id}/syllabus(id=${subject.id})}">Open syllabus</a>
+                </div>
+                <ol class="overview-unit-list" th:if="${!#lists.isEmpty(units)}">
+                    <li th:each="unit : ${units}">
+                        <span class="overview-unit-number" th:text="${unit.sortOrder}">1</span>
+                        <div><strong th:text="${unit.name}">Unit name</strong><small th:text="${unit.topics.size()} + (${unit.topics.size()} == 1 ? ' topic' : ' topics')">0 topics</small></div>
+                    </li>
+                </ol>
+                <div class="overview-syllabus-total" th:if="${!#lists.isEmpty(units)}">
+                    <span th:text="${unitCount} + (${unitCount} == 1 ? ' unit' : ' units')">0 units</span>
+                    <strong th:text="${topicCount} + (${topicCount} == 1 ? ' topic' : ' topics')">0 topics</strong>
+                </div>
+            </section>
+
+            <section class="overview-panel setup-readiness-panel" aria-labelledby="setup-readiness-heading">
+                <p class="eyebrow">Planning setup</p>
+                <h2 id="setup-readiness-heading">Subject checklist</h2>
+                <ul class="overview-checklist">
+                    <li class="is-complete"><span aria-hidden="true">✓</span><div><strong>Subject details</strong><small th:text="${subject.name}">Subject name</small></div></li>
+                    <li th:classappend="${activeSectionCount > 0} ? ' is-complete' : ''">
+                        <span aria-hidden="true" th:text="${activeSectionCount > 0} ? '✓' : '2'">2</span>
+                        <div><strong>Teaching sections</strong><small th:text="${activeSectionCount > 0 ? activeSectionCount + ' active' : 'Add a section to organize teaching groups.'}">Add a section to organize teaching groups.</small></div>
+                    </li>
+                    <li th:classappend="${weeklySlotCount > 0} ? ' is-complete' : ''">
+                        <span aria-hidden="true" th:text="${weeklySlotCount > 0} ? '✓' : '3'">3</span>
+                        <div><strong>Weekly teaching times</strong><small th:text="${weeklySlotCount > 0 ? weeklySlotCount + ' saved' : 'Add slots to a teaching section.'}">Add slots to a teaching section.</small></div>
+                    </li>
+                    <li th:classappend="${topicCount > 0} ? ' is-complete' : ''">
+                        <span aria-hidden="true" th:text="${topicCount > 0} ? '✓' : '4'">4</span>
+                        <div><strong>Syllabus topics</strong><small th:text="${topicCount > 0 ? topicCount + ' saved' : 'Add topics before creating a plan.'}">Add topics before creating a plan.</small></div>
+                    </li>
+                </ul>
+            </section>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

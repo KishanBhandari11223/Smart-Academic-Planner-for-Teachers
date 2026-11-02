@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teaching home · Adaptive Teaching Planner</title><link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'home', 'Home')}">
+<main class="planner-page dashboard-page">
+    <header class="page-header">
+        <div><p class="eyebrow">Your workspace</p><h1>Your teaching, at a glance.</h1><p class="intro">Signed in as <strong th:text="${teacherEmail}">teacher@example.com</strong>. Here is what is moving across your approved plans.</p></div>
+        <div class="header-actions"><a class="button-link" th:href="@{/subjects/new}">Add a subject</a><a class="button-link secondary-link" th:href="@{/calendar}">Open calendar</a></div>
+    </header>
+
+    <section class="dashboard-metrics" aria-label="Planner summary">
+        <article class="dashboard-metric"><span>My subjects</span><strong th:text="${#lists.size(subjects)}">0</strong><small>Active subject records</small></article>
+        <article class="dashboard-metric"><span>Planned effort</span><strong th:text="|${progress.plannedMinutes} min|">0 min</strong><small>Across approved plans</small></article>
+        <article class="dashboard-metric"><span>Class time covered</span><strong th:text="|${progress.percentage}%|">0%</strong><small th:text="|${progress.coveredMinutes} of ${progress.plannedMinutes} minutes logged|">No class updates yet</small></article>
+        <article class="dashboard-metric"><span>Needs your review</span><strong th:text="${#lists.size(pendingAdjustments)}">0</strong><small>Follow-up suggestions</small></article>
+    </section>
+
+    <div class="dashboard-grid">
+        <section class="content-section dashboard-panel">
+            <div class="section-heading"><div><p class="eyebrow">Curriculum workspace</p><h2>My subjects</h2></div><a class="text-link" th:href="@{/subjects}">View all</a></div>
+            <div class="empty-state compact" th:if="${#lists.isEmpty(subjects)}"><p>No subjects yet. Add a subject to start building your teaching plan.</p><a class="button-link" th:href="@{/subjects/new}">Add your first subject</a></div>
+            <div class="dashboard-subject-list" th:if="${!#lists.isEmpty(subjects)}">
+                <article class="dashboard-subject" th:each="subject : ${subjects}">
+                    <span class="subject-monogram" th:text="${#strings.substring(subject.name, 0, 1)}">S</span>
+                    <div class="dashboard-subject-copy"><h3><a th:href="@{/subjects/{id}(id=${subject.id})}" th:text="${subject.name}">Subject</a></h3><p class="muted" th:text="${subject.description} ?: 'Open subject workspace and review its sections.'">Description</p></div>
+                    <a class="text-link" th:href="@{/subjects/{id}(id=${subject.id})}">Open</a>
+                </article>
+            </div>
+        </section>
+
+        <section class="content-section dashboard-panel">
+            <div class="section-heading"><div><p class="eyebrow">Next two weeks</p><h2>Coming up</h2></div><a class="text-link" th:href="@{/calendar}">Calendar</a></div>
+            <div class="empty-state compact" th:if="${#lists.isEmpty(upcomingSessions)}"><p>No approved sessions are scheduled in the next two weeks.</p><a class="text-link" th:href="@{/subjects}">Open a subject to build a plan</a></div>
+            <div class="dashboard-session-list" th:if="${!#lists.isEmpty(upcomingSessions)}">
+                <article class="dashboard-session" th:each="session : ${upcomingSessions}">
+                    <div class="dashboard-session-date"><strong th:text="${#temporals.format(session.scheduledDate, 'd')}">1</strong><span th:text="${#temporals.format(session.scheduledDate, 'MMM')}">Jan</span></div>
+                    <div class="dashboard-session-copy"><p class="eyebrow" th:text="|${session.plan.section.subject.name} · ${session.plan.section.name}|">Subject · Section</p><h3 th:text="${session.topicTitleSnapshot}">Topic</h3><p class="muted" th:text="|${session.startTime}–${session.endTime}|">10:00–11:00</p></div>
+                    <a class="text-link" th:href="@{/plans/{id}(id=${session.plan.id})}">Plan</a>
+                </article>
+            </div>
+        </section>
+
+        <section class="content-section dashboard-panel attention-panel">
+            <div class="section-heading"><div><p class="eyebrow">Teacher review</p><h2>Needs your attention</h2></div><a class="text-link" th:href="@{/calendar}">Review calendar</a></div>
+            <div class="empty-state compact" th:if="${#lists.isEmpty(pendingAdjustments)}"><p>No schedule changes are waiting for your review.</p></div>
+            <ul class="attention-list" th:if="${!#lists.isEmpty(pendingAdjustments)}">
+                <li th:each="proposal : ${pendingAdjustments}"><span class="attention-marker" aria-hidden="true">!</span><span><strong th:text="${proposal.topicTitleSnapshot}">Topic</strong><small th:text="|${proposal.plan.section.subject.name} · suggested ${proposal.proposedDate}|">Subject · date</small></span><a class="text-link" th:href="@{/calendar}">Review</a></li>
+            </ul>
+        </section>
+
+        <section class="content-section dashboard-panel progress-panel">
+            <div class="section-heading"><div><p class="eyebrow">Teaching progress</p><h2>Class time covered</h2></div><a class="text-link" th:href="@{/progress}">Details</a></div>
+            <div class="dashboard-progress-head"><strong th:text="|${progress.percentage}%|">0%</strong><span th:text="|${progress.coveredMinutes} / ${progress.plannedMinutes} min|">0 / 0 min</span></div>
+            <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" th:attr="aria-valuenow=${progress.percentage},aria-label='Overall planned effort covered'"><span th:style="|width: ${progress.percentage}%|"></span></div>
+            <p class="muted" th:text="|${progress.loggedSessions} class updates recorded across ${progress.sessionCount} scheduled sessions.|">No class updates recorded yet.</p>
+        </section>
+    </div>
+</main>
+</body>
+</html>

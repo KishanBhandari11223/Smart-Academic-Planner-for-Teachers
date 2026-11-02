@@ -24,6 +24,9 @@ const navigation: { id: View; label: string; icon: typeof Home }[] = [
 export function AppShell({
   children,
   view,
+  accountName,
+  accountEmail,
+  accountAvatar,
   onNavigate,
   onProfile,
   onSearch,
@@ -32,6 +35,9 @@ export function AppShell({
 }: {
   children: ReactNode;
   view: View;
+  accountName: string;
+  accountEmail: string;
+  accountAvatar: string;
   onNavigate: (view: View) => void;
   onProfile: () => void;
   onSearch: (query: string) => void;
@@ -62,8 +68,8 @@ export function AppShell({
           ))}
         </nav>
         <button className="profile-chip" type="button" onClick={onProfile}>
-          <span className="avatar">KJ</span>
-          <span className="profile-label"><strong>Kartikey Joshi</strong><small>Faculty · Active</small></span>
+          <span className="avatar">{accountAvatar}</span>
+          <span className="profile-label"><strong>{accountName}</strong><small>{accountEmail}</small></span>
           <span className="profile-chevron">⌄</span>
         </button>
       </aside>
@@ -84,7 +90,7 @@ export function AppShell({
             <button type="button" className="icon-button help-button" onClick={onHelp} aria-label="Help">
               <CircleHelp size={17} />
             </button>
-            <button type="button" className="avatar avatar-top" onClick={onProfile} aria-label="Open profile">KJ</button>
+            <button type="button" className="avatar avatar-top" onClick={onProfile} aria-label={`Open profile for ${accountName}`}>{accountAvatar}</button>
           </div>
         </header>
         <main className="main-content">{children}</main>

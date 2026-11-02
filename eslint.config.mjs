@@ -6,7 +6,7 @@ const eslintConfig = defineConfig([
   js.configs.recommended,
   ...tseslint.configs.recommended,
   { rules: { "no-undef": "off" } },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores(["out/**", "build/**", "dist/**"]),
 ]);
 
 export default eslintConfig;

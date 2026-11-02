@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${showArchived} ? 'Archived subjects · Adaptive Teaching Planner' : 'My subjects · Adaptive Teaching Planner'">My subjects</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'subjects', 'My Subjects')}" class="app-body">
+<main class="planner-page subjects-page">
+    <header class="subjects-heading">
+        <div class="subjects-heading-copy">
+            <p class="eyebrow">Curriculum workspace</p>
+            <h1 th:text="${showArchived} ? 'Archived subjects' : 'My Subjects'">My Subjects</h1>
+            <p class="intro" th:if="${!showArchived}">Manage your subjects and the teaching sections attached to each one.</p>
+            <p class="intro" th:if="${showArchived}">Review subjects you have archived and restore one when you need it again.</p>
+        </div>
+        <a class="button-link subjects-add-button" th:if="${!showArchived}" th:href="@{/subjects/new}">
+            <span aria-hidden="true">+</span> Add subject
+        </a>
+        <a class="button-link secondary-link subjects-add-button" th:if="${showArchived}" th:href="@{/subjects}">Active subjects</a>
+    </header>
+
+    <p class="notice" role="status" th:if="${message}" th:text="${message}"></p>
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+
+    <section class="subjects-overview" aria-label="Subject totals">
+        <div class="subjects-overview-item">
+            <span th:text="${showArchived} ? 'Archived subjects' : 'Subjects'">Subjects</span>
+            <strong th:text="${#lists.size(subjects)}">0</strong>
+        </div>
+        <div class="subjects-overview-divider" aria-hidden="true"></div>
+        <div class="subjects-overview-item" th:if="${!showArchived}">
+            <span>Active teaching sections</span>
+            <strong th:text="${activeSectionTotal}">0</strong>
+        </div>
+        <p class="subjects-overview-note" th:if="${!showArchived}">Counts reflect the records currently saved to your planner.</p>
+    </section>
+
+    <div class="subjects-toolbar" th:if="${!#lists.isEmpty(subjects)}">
+        <label class="subjects-search" for="subject-search">
+            <span aria-hidden="true" class="subjects-search-icon">⌕</span>
+            <span class="visually-hidden">Search subjects</span>
+            <input id="subject-search" type="search" placeholder="Search subjects by name or description" autocomplete="off">
+        </label>
+        <label class="subjects-sort-label" for="subject-sort">Sort by</label>
+        <select id="subject-sort" class="subjects-sort">
+            <option value="name">Name</option>
+            <option value="recent">Recently updated</option>
+        </select>
+    </div>
+
+    <div class="subjects-tabs" role="group" aria-label="Subject status">
+        <a th:href="@{/subjects}" th:classappend="${!showArchived} ? ' is-selected' : ''" th:attr="aria-current=${!showArchived ? 'page' : null}">Active</a>
+        <a th:href="@{/subjects(archived=true)}" th:classappend="${showArchived} ? ' is-selected' : ''" th:attr="aria-current=${showArchived ? 'page' : null}">Archived</a>
+    </div>
+
+    <div class="empty-state subjects-empty" th:if="${#lists.isEmpty(subjects)}">
+        <span class="subjects-empty-mark" aria-hidden="true">ATP</span>
+        <h2 th:text="${showArchived} ? 'No archived subjects' : 'Your subject list is ready to begin'">Your subject list is ready to begin</h2>
+        <p th:if="${!showArchived}">Add a subject to start organizing your teaching sections and plans.</p>
+        <p th:if="${showArchived}">Archived subjects will appear here when you move one out of your active list.</p>
+        <a class="button-link" th:if="${!showArchived}" th:href="@{/subjects/new}">Add your first subject</a>
+    </div>
+
+    <section class="subject-grid editorial-subject-grid" aria-label="Subjects" th:if="${!#lists.isEmpty(subjects)}" id="subjects-container">
+        <article class="subject-card editorial-subject-card" th:each="subject : ${subjects}"
+                 th:data-title="${subject.name}"
+                 th:data-search="${#strings.toLowerCase(subject.name + ' ' + (subject.description ?: ''))}"
+                 th:data-updated="${subject.updatedAt}">
+            <div class="editorial-subject-card-main">
+                <div class="editorial-subject-card-top">
+                    <span class="subject-card-kicker">Subject</span>
+                    <span class="status-pill" th:classappend="${showArchived} ? ' is-archived' : ''" th:text="${showArchived} ? 'Archived' : 'Active'">Active</span>
+                </div>
+                <h2><a th:href="@{/subjects/{id}(id=${subject.id},archived=${showArchived})}" th:text="${subject.name}">Subject name</a></h2>
+                <p class="subject-description" th:text="${subject.description} ?: 'No description added yet.'">Description</p>
+                <p class="editorial-subject-section-count">
+                    <strong th:text="${sectionCounts[subject.id] ?: 0}">0</strong>
+                    <span>active teaching sections</span>
+                </p>
+            </div>
+            <div class="card-actions editorial-subject-actions">
+                <a class="text-link" th:href="@{/subjects/{id}(id=${subject.id},archived=${showArchived})}">Open subject <span aria-hidden="true">→</span></a>
+                <form method="post" th:action="@{/subjects/{id}/archive(id=${subject.id})}">
+                    <input type="hidden" name="archived" th:value="${!showArchived}">
+                    <button class="text-button" type="submit" th:text="${showArchived} ? 'Restore' : 'Archive'">Archive</button>
+                </form>
+            </div>
+        </article>
+    </section>
+
+    <p class="subjects-no-results" role="status" hidden>No subjects match that search. Try another name or description.</p>
+    <footer class="subjects-list-footer" th:if="${!#lists.isEmpty(subjects)}">
+        <span id="subject-result-count" th:text="${#lists.size(subjects)} + (${#lists.size(subjects)} == 1 ? ' subject shown' : ' subjects shown')">0 subjects shown</span>
+    </footer>
+    <script th:if="${!#lists.isEmpty(subjects)}">
+        (() => {
+            const container = document.getElementById('subjects-container');
+            const search = document.getElementById('subject-search');
+            const sort = document.getElementById('subject-sort');
+            const noResults = document.querySelector('.subjects-no-results');
+            const resultCount = document.getElementById('subject-result-count');
+            const cards = [...container.querySelectorAll('.editorial-subject-card')];
+
+            function updateSubjects() {
+                const query = search.value.trim().toLocaleLowerCase();
+                const sorted = [...cards].sort((left, right) => {
+                    if (sort.value === 'recent') {
+                        return (right.dataset.updated || '').localeCompare(left.dataset.updated || '')
+                            || left.dataset.title.localeCompare(right.dataset.title);
+                    }
+                    return left.dataset.title.localeCompare(right.dataset.title);
+                });
+                sorted.forEach(card => container.append(card));
+
+                let visible = 0;
+                cards.forEach(card => {
+                    const matches = (card.dataset.search || '').includes(query);
+                    card.hidden = !matches;
+                    if (matches) visible++;
+                });
+                noResults.hidden = visible !== 0;
+                resultCount.textContent = `${visible} ${visible === 1 ? 'subject' : 'subjects'} shown`;
+            }
+
+            search.addEventListener('input', updateSubjects);
+            sort.addEventListener('change', updateSubjects);
+        })();
+    </script>
+</main>
+</body>
+</html>

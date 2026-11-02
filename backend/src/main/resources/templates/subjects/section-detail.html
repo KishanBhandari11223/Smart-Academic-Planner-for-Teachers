@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${section.name} + ' · Adaptive Teaching Planner'">Teaching section</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'subjects', 'Teaching section')}">
+<main class="planner-page narrow-page">
+    <header class="page-header">
+        <div>
+            <a class="back-link" th:href="@{/subjects/{id}(id=${section.subject.id})}">← <span th:text="${section.subject.name}">Subject</span></a>
+            <p class="eyebrow">Teaching section</p>
+            <h1 th:text="${section.name}">Section name</h1>
+            <p class="intro" th:text="${section.termLabel} ?: 'Term not specified'">Term</p>
+        </div>
+        <form method="post" th:action="@{/sections/{id}/archive(id=${section.id})}">
+            <input type="hidden" name="archived" th:value="${!section.archived}">
+            <button class="button-link secondary-link" type="submit" th:text="${section.archived} ? 'Restore section' : 'Archive section'">Archive section</button>
+        </form>
+    </header>
+
+    <nav class="section-navigation" aria-label="Section tools">
+        <a class="button-link" th:href="@{/sections/{id}/plans(id=${section.id})}">Pacing plans</a>
+    </nav>
+
+    <p class="notice" role="status" th:if="${message}" th:text="${message}"></p>
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+
+    <section class="content-section">
+        <div class="section-heading"><div><p class="eyebrow">Details</p><h2>Edit section</h2></div></div>
+        <form class="planner-form panel form-grid" method="post" th:action="@{/sections/{id}(id=${section.id})}">
+            <div>
+                <label for="section-name">Section name</label>
+                <input id="section-name" name="name" type="text" maxlength="120" required th:value="${section.name}">
+            </div>
+            <div>
+                <label for="term-label">Term or academic session</label>
+                <input id="term-label" name="termLabel" type="text" maxlength="120" th:value="${section.termLabel}">
+            </div>
+            <div class="form-grid-wide form-actions"><button class="button-link" type="submit">Save section</button></div>
+        </form>
+    </section>
+
+    <section class="content-section">
+        <div class="section-heading">
+            <div><p class="eyebrow">Weekly schedule</p><h2>Teaching times</h2></div>
+        </div>
+        <div class="empty-state compact" th:if="${#lists.isEmpty(section.weeklySlots)}">
+            <p>No weekly teaching times added yet.</p>
+        </div>
+        <div class="slot-list" th:if="${!#lists.isEmpty(section.weeklySlots)}">
+            <div class="slot-row" th:each="slot : ${section.weeklySlots}">
+                <div>
+                    <strong th:text="${#strings.capitalize(#strings.toLowerCase(slot.dayOfWeek.name()))}">Monday</strong>
+                    <span th:text="|${slot.startTime}–${slot.endTime}|">09:00–10:00</span>
+                    <span class="muted" th:if="${slot.location}" th:text="${slot.location}">Room</span>
+                </div>
+                <form method="post" th:action="@{/sections/{sectionId}/weekly-slots/{slotId}/delete(sectionId=${section.id},slotId=${slot.id})}">
+                    <button class="text-button danger-button" type="submit">Remove</button>
+                </form>
+            </div>
+        </div>
+        <form class="planner-form panel schedule-form" method="post" th:action="@{/sections/{id}/weekly-slots(id=${section.id})}"
+              th:if="${!section.archived}">
+            <div>
+                <label for="day-of-week">Day</label>
+                <select id="day-of-week" name="dayOfWeek" required>
+                    <option value="MONDAY">Monday</option><option value="TUESDAY">Tuesday</option>
+                    <option value="WEDNESDAY">Wednesday</option><option value="THURSDAY">Thursday</option>
+                    <option value="FRIDAY">Friday</option><option value="SATURDAY">Saturday</option>
+                    <option value="SUNDAY">Sunday</option>
+                </select>
+            </div>
+            <div><label for="start-time">Starts</label><input id="start-time" name="startTime" type="time" required></div>
+            <div><label for="end-time">Ends</label><input id="end-time" name="endTime" type="time" required></div>
+            <div><label for="location">Room or location <span>Optional</span></label><input id="location" name="location" type="text" maxlength="120"></div>
+            <button class="button-link" type="submit">Add weekly time</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

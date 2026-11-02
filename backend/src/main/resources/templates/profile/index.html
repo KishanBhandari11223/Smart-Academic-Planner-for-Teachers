@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>My profile · Adaptive Teaching Planner</title><link rel="stylesheet" th:href="@{/styles.css}"></head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'profile', 'My profile')}">
+<main class="planner-page profile-page">
+    <header class="page-header"><div><p class="eyebrow">Account</p><h1>My profile</h1><p class="intro">Your teacher sign-in and a summary of the teaching plans in this workspace.</p></div></header>
+    <section class="profile-hero">
+        <span class="profile-avatar" aria-hidden="true">T</span>
+        <div><p class="eyebrow">Teacher account</p><h2 th:text="${account.email}">teacher@example.com</h2><p class="muted" th:text="|Member since ${memberSince}|">Member since 1 Jan 2026</p></div>
+        <span class="status-pill profile-status">Email verified</span>
+    </section>
+    <section class="content-section profile-metrics" aria-label="Teaching overview">
+        <article class="dashboard-metric"><span>Active subjects</span><strong th:text="${#lists.size(subjects)}">0</strong><small>Available in My Subjects</small></article>
+        <article class="dashboard-metric"><span>Archived subjects</span><strong th:text="${#lists.size(archivedSubjects)}">0</strong><small>Can be restored from the subject list</small></article>
+        <article class="dashboard-metric"><span>Approved plans</span><strong th:text="${#lists.size(progress.plans)}">0</strong><small>Plans with saved teaching sessions</small></article>
+        <article class="dashboard-metric"><span>Class time covered</span><strong th:text="|${progress.percentage}%|">0%</strong><small th:text="|${progress.coveredMinutes} of ${progress.plannedMinutes} minutes|">No class updates yet</small></article>
+    </section>
+    <section class="content-section">
+        <div class="section-heading"><div><p class="eyebrow">Teaching overview</p><h2>Subjects I teach</h2></div><a class="button-link secondary-link" th:href="@{/subjects}">Manage subjects</a></div>
+        <div class="empty-state compact" th:if="${#lists.isEmpty(subjects)}"><p>No active subjects yet. Add one to begin planning.</p><a class="button-link" th:href="@{/subjects/new}">Add a subject</a></div>
+        <div class="profile-subject-list" th:if="${!#lists.isEmpty(subjects)}">
+            <article class="profile-subject" th:each="subject : ${subjects}">
+                <span class="subject-monogram" th:text="${#strings.substring(subject.name, 0, 1)}">S</span>
+                <div><h3 th:text="${subject.name}">Subject name</h3><p class="muted" th:text="${subject.description} ?: 'No description added.'">Description</p></div>
+                <a class="text-link" th:href="@{/subjects/{id}(id=${subject.id})}">Open subject</a>
+            </article>
+        </div>
+    </section>
+    <section class="content-section profile-preferences">
+        <div><p class="eyebrow">Planning settings</p><h2>Teaching preferences</h2><p class="muted">Weekly teaching times are configured for each section, so plans can use the correct days and periods.</p></div>
+        <a class="text-link" th:href="@{/subjects}">Review section schedules</a>
+    </section>
+</main>
+</body></html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"inverse-primary":"#bec6e0","on-tertiary-container":"#c76c00","on-surface-variant":"#45464d","on-tertiary-fixed":"#2f1500","outline":"#76777d","surface-container-high":"#eae7eb","primary":"#000000","error":"#ba1a1a","inverse-on-surface":"#f3f0f4","on-tertiary":"#ffffff","on-secondary":"#ffffff","primary-fixed-dim":"#bec6e0","on-primary":"#ffffff","on-secondary-container":"#006f66","surface-variant":"#e4e1e6","surface-bright":"#fbf8fc","surface-tint":"#565e74","surface-dim":"#dcd9dd","surface-container-low":"#f6f2f7","tertiary-fixed":"#ffdcc3","surface-container-lowest":"#ffffff","on-secondary-fixed-variant":"#005049","primary-container":"#131b2e","outline-variant":"#c6c6cd","on-surface":"#1b1b1e","on-primary-fixed-variant":"#3f465c","secondary-container":"#86f2e4","error-container":"#ffdad6","secondary":"#006a61","tertiary":"#000000","inverse-surface":"#303033","on-error-container":"#93000a","surface":"#fbf8fc","background":"#fbf8fc","primary-fixed":"#dae2fd","on-primary-container":"#7c839b","surface-container-highest":"#e4e1e6","surface-container":"#f0edf1","tertiary-fixed-dim":"#ffb77d","on-tertiary-fixed-variant":"#6e3900","on-background":"#1b1b1e","tertiary-container":"#2f1500","on-secondary-fixed":"#00201d","secondary-fixed":"#89f5e7","on-primary-fixed":"#131b2e","on-error":"#ffffff","secondary-fixed-dim":"#6bd8cb"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{"gutter":"1.25rem","space-sm":"0.5rem","gutter-desktop":"1.75rem","space-xl":"2rem","space-xxl":"3.5rem","space-lg":"1.25rem","space-xxs":"0.125rem","margin":"1rem","space-xs":"0.25rem","margin-tablet":"2rem","margin-desktop":"3rem","space-md":"0.75rem"},fontFamily:{"headline-lg":["Newsreader"],"display":["Newsreader"],"headline-lg-mobile":["Newsreader"],"body-lg":["Plus Jakarta Sans"],"headline-sm":["Newsreader"],"label-md":["Plus Jakarta Sans"],"headline-md":["Newsreader"],"body-md":["Plus Jakarta Sans"],"title-md":["Plus Jakarta Sans"],"body-sm":["Plus Jakarta Sans"],"tabular-data":["Plus Jakarta Sans"],"label-xs":["Plus Jakarta Sans"]},fontSize:{"headline-lg":["2.25rem",{"lineHeight":"2.75rem","letterSpacing":"-0.015em","fontWeight":"400"}],"display":["2.75rem",{"lineHeight":"3.25rem","letterSpacing":"-0.02em","fontWeight":"400"}],"headline-lg-mobile":["1.75rem",{"lineHeight":"2.25rem","letterSpacing":"-0.01em","fontWeight":"500"}],"body-lg":["1rem",{"lineHeight":"1.625rem","letterSpacing":"-0.005em","fontWeight":"400"}],"headline-sm":["1.25rem",{"lineHeight":"1.625rem","letterSpacing":"-0.005em","fontWeight":"500"}],"label-md":["0.75rem",{"lineHeight":"1rem","letterSpacing":"0.02em","fontWeight":"600"}],"headline-md":["1.625rem",{"lineHeight":"2rem","letterSpacing":"-0.01em","fontWeight":"500"}],"body-md":["0.875rem",{"lineHeight":"1.375rem","letterSpacing":"0em","fontWeight":"400"}],"title-md":["1rem",{"lineHeight":"1.5rem","letterSpacing":"-0.01em","fontWeight":"600"}],"body-sm":["0.8125rem",{"lineHeight":"1.25rem","letterSpacing":"0em","fontWeight":"400"}],"tabular-data":["0.8125rem",{"lineHeight":"1.125rem","letterSpacing":"-0.01em","fontWeight":"500"}],"label-xs":["0.6875rem",{"lineHeight":"0.875rem","letterSpacing":"0.04em","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-surface-container-highest"><aside class="fixed left-0 top-0 h-screen w-72 bg-surface-container-lowest border-r border-surface-variant flex flex-col justify-between z-50"><div class="flex flex-col"><div class="h-16 px-space-lg flex items-center border-b border-surface-variant"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface"><span class="material-symbols-outlined text-[20px]">auto_stories</span></div><div class="flex flex-col leading-none"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight">Teaching Planner</span><span class="font-label-xs text-label-xs uppercase tracking-wider text-outline mt-space-xxs">Adaptive Curriculum</span></div></div></div><div class="px-space-md pt-space-lg"><div class="px-space-sm pb-space-xs font-label-xs text-label-xs uppercase tracking-widest text-outline">Instructional Workspace</div><nav class="flex flex-col gap-space-xxs" data-active-classes="bg-surface-container font-title-md text-on-surface border-l-2 border-primary"><a class="flex items-center gap-space-md px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="home" href="#"><span class="material-symbols-outlined text-[18px]">home</span><span>Home</span></a><a aria-current="page" class="flex items-center gap-space-md px-space-sm py-2 rounded transition-colors bg-surface-container font-title-md text-on-surface border-l-2 border-primary" data-path="my-subjects" href="#"><span class="material-symbols-outlined text-[18px]">menu_book</span><span>My Subjects</span></a><a class="flex items-center gap-space-md px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="calendar" href="#"><span class="material-symbols-outlined text-[18px]">calendar_today</span><span>Calendar</span></a><a class="flex items-center gap-space-md px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="notifications" href="#"><span class="material-symbols-outlined text-[18px]">notifications</span><span>Notifications</span></a><a class="flex items-center gap-space-md px-space-sm py-2 rounded text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors font-body-sm text-body-sm" data-path="settings" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span>Settings</span></a></nav></div></div><div class="p-space-md border-t border-surface-variant"><div class="flex items-center justify-between p-space-sm rounded-lg bg-surface-container-low border border-surface-variant hover:bg-surface-container transition-colors cursor-pointer"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="flex flex-col leading-none"><span class="font-title-md text-body-sm text-on-surface">Kartikey Joshi</span><span class="font-label-xs text-label-xs text-outline mt-space-xxs">Faculty</span></div></div><span class="material-symbols-outlined text-outline text-[18px]">unfold_more</span></div></div></aside><div class="pl-72 flex flex-col min-h-screen"><header class="fixed top-0 left-72 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur border-b border-surface-variant z-40 px-space-lg flex items-center justify-between"><div class="flex items-center gap-space-sm"><span class="inline-block w-2 h-2 rounded-full bg-secondary"></span><span class="font-label-md text-label-md uppercase tracking-wider text-on-surface font-semibold">Fall Term 2026-27</span><span class="text-outline font-body-sm">|</span><span class="font-body-sm text-body-sm text-outline">Syllabus Architecture &amp; Pacing Engine</span></div><div class="flex items-center gap-space-md"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-space-sm text-outline text-[18px]">search</span><input class="h-9 pl-8 pr-12 w-72 rounded bg-surface border border-surface-variant text-on-surface font-body-sm text-body-sm focus:outline-none focus:border-primary placeholder:text-outline" placeholder="Search syllabus, outcomes, readings..." type="text"/><span class="absolute right-space-sm font-label-xs text-label-xs bg-surface-container px-1 py-0.5 rounded text-outline border border-surface-variant">⌘K</span></div><button aria-label="Help &amp; Documentation" class="w-9 h-9 rounded flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">help_outline</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-space-xs"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-16 bg-surface flex-1 px-space-lg py-space-lg"><div class="flex flex-col w-full">
+<!-- Top Breadcrumb & Control Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-lg">
+<div class="flex flex-col gap-space-xxs">
+<div class="flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant">
+<a class="hover:text-on-surface transition-colors" href="#">My Subjects</a>
+<span class="text-outline">/</span>
+<a class="hover:text-on-surface transition-colors font-medium text-on-surface" href="#">MCA-302 Data Mining &amp; Warehousing</a>
+<span class="text-outline">/</span>
+<span class="text-on-surface font-semibold">Schedule Map</span>
+</div>
+<div class="flex items-center gap-space-xs mt-space-xxs">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-tabular-data text-tabular-data uppercase tracking-wider text-outline font-semibold">AUTO-SAVED 14:18:02 • TERM REVISION V4</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="h-9 px-space-md rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-md text-body-sm flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">restart_alt</span>
+<span>Reset to Pacing Defaults</span>
+</button>
+<button class="h-9 px-space-md rounded-lg bg-surface-container-lowest hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-title-md text-body-sm transition-colors" type="button">
+        Cancel &amp; Exit
+      </button>
+</div>
+</div>
+<!-- Workflow Indicator Stepper -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md mb-space-xl">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md relative">
+<!-- Step 1: Syllabus Structure -->
+<div class="flex items-center gap-space-md p-space-sm rounded-lg bg-surface-container-low/70">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-title-md text-body-sm">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-xs text-label-xs text-outline uppercase tracking-wider">Step 01</span>
+<span class="font-title-md text-body-sm text-on-surface truncate">Syllabus Structure</span>
+</div>
+</div>
+<!-- Step 2: Pacing Matrix -->
+<div class="flex items-center gap-space-md p-space-sm rounded-lg bg-surface-container-low/70">
+<div class="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-title-md text-body-sm">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-xs text-label-xs text-outline uppercase tracking-wider">Step 02</span>
+<span class="font-title-md text-body-sm text-on-surface truncate">Pacing Matrix</span>
+</div>
+</div>
+<!-- Step 3: Schedule Map (Active Workspace) -->
+<div class="flex items-center gap-space-md p-space-sm rounded-lg bg-primary text-on-primary">
+<div class="w-7 h-7 rounded-full bg-surface-container-lowest text-primary flex items-center justify-center font-title-md text-body-sm font-bold">
+          3
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-xs text-label-xs text-outline-variant uppercase tracking-wider">Active Workspace</span>
+<span class="font-title-md text-body-sm text-on-primary truncate">Schedule Map</span>
+</div>
+</div>
+<!-- Step 4: Teaching Plan -->
+<div class="flex items-center gap-space-md p-space-sm rounded-lg bg-surface-container-low/40">
+<div class="w-7 h-7 rounded-full bg-surface-container-high text-outline flex items-center justify-center font-title-md text-body-sm">
+          4
+        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-xs text-label-xs text-outline uppercase tracking-wider">Step 04 • Next</span>
+<span class="font-title-md text-body-sm text-on-surface-variant truncate">Teaching Plan</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Page Title & Editorial Lead -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg mb-space-xl">
+<div class="max-w-3xl">
+<div class="flex items-center gap-space-xs font-label-xs text-label-xs tracking-widest text-outline uppercase mb-space-xs">
+<span class="material-symbols-outlined text-[16px]">calendar_month</span>
+        Academic Calendar Allocation Engine
+      </div>
+<h1 class="font-headline-lg text-headline-lg text-primary tracking-tight">
+        Map your teaching schedule
+      </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-space-xs leading-relaxed">
+        See how your syllabus topics fit into your available teaching weeks and academic calendar. Topics are allocated to weekly slots respecting pacing estimates and university holidays.
+      </p>
+</div>
+<!-- Live Pace Health Pill -->
+<div class="flex items-center gap-space-md px-space-md py-space-sm bg-surface-container-lowest rounded-xl self-start lg:self-auto">
+<div class="w-9 h-9 rounded-lg bg-secondary-container/40 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+</div>
+<div class="flex flex-col leading-tight">
+<span class="font-label-xs text-label-xs uppercase tracking-wider text-outline">Pacing Feasibility</span>
+<span class="font-title-md text-body-sm text-on-surface flex items-center gap-space-xs">
+          100% Scheduled <span class="text-secondary font-semibold">• Zero Conflict</span>
+</span>
+</div>
+</div>
+</div>
+<!-- Schedule Context Summary Bar -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg mb-space-lg">
+<!-- 4 Scannable Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-lg pb-space-lg">
+<!-- Cohorts Planned -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-xs text-label-xs uppercase tracking-wider text-outline">Cohorts Planned</span>
+<span class="px-space-xs py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/30 text-on-secondary-container">Synced</span>
+</div>
+<span class="font-title-md text-body-md text-on-surface">MCA 3A &amp; MCA 3B</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-space-xxs">Co-taught Core Curriculum</span>
+</div>
+<!-- Weekly Slots -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-xs text-label-xs uppercase tracking-wider text-outline">Weekly Slots</span>
+<span class="material-symbols-outlined text-outline text-[16px]">schedule</span>
+</div>
+<span class="font-title-md text-body-md text-on-surface">3 slots / week</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-space-xxs">Mon, Wed, Fri • 10:00–11:00 AM</span>
+</div>
+<!-- Available Sessions -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-xs text-label-xs uppercase tracking-wider text-outline">Available Sessions</span>
+<span class="font-tabular-data text-label-xs text-outline font-semibold">TERM T-42</span>
+</div>
+<span class="font-title-md text-body-md text-on-surface">42 total slots in term</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant mt-space-xxs">35 instruction + 4 buffer + 3 exam</span>
+</div>
+<!-- Projected Completion -->
+<div class="flex flex-col">
+<div class="flex items-center justify-between mb-space-xs">
+<span class="font-label-xs text-label-xs uppercase tracking-wider text-outline">Projected Completion</span>
+<span class="px-space-xs py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-secondary font-semibold">On Track</span>
+</div>
+<span class="font-title-md text-body-md text-on-surface">Nov 20, 2026</span>
+<span class="font-body-sm text-body-sm text-secondary mt-space-xxs font-medium">+6 days safety buffer before finals</span>
+</div>
+</div>
+<!-- Planning Period & View Filter Controls Bar -->
+<div class="pt-space-md flex flex-col xl:flex-row xl:items-center justify-between gap-space-md">
+<div class="flex flex-wrap items-center gap-space-sm">
+<!-- Date Selector -->
+<div class="flex items-center gap-space-xs px-space-md py-1.5 rounded-lg bg-surface-container font-body-sm text-body-sm text-on-surface">
+<span class="material-symbols-outlined text-[17px] text-outline">date_range</span>
+<span class="font-medium">Aug 18, 2026 – Dec 05, 2026</span>
+<span class="text-outline font-label-xs text-label-xs">(Fall Term 2026)</span>
+</div>
+<!-- Cohort Switcher -->
+<div class="inline-flex p-0.5 bg-surface-container rounded-lg">
+<button class="px-space-md py-1 rounded bg-surface-container-lowest text-on-surface font-title-md text-body-sm" type="button">
+            Combined View (3A &amp; 3B)
+          </button>
+<button class="px-space-md py-1 rounded text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-colors" type="button">
+            MCA 3A
+          </button>
+<button class="px-space-md py-1 rounded text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-colors" type="button">
+            MCA 3B
+          </button>
+</div>
+</div>
+<!-- View Selector & Recalculate -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="inline-flex p-0.5 bg-surface-container rounded-lg">
+<button class="px-space-md py-1 rounded bg-surface-container-lowest text-on-surface font-title-md text-body-sm flex items-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[16px]">view_timeline</span>
+<span>Weekly Timeline</span>
+</button>
+<button class="px-space-md py-1 rounded text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">calendar_view_month</span>
+<span>Calendar Grid</span>
+</button>
+<button class="px-space-md py-1 rounded text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">format_list_bulleted</span>
+<span>Compact List</span>
+</button>
+</div>
+<button class="h-8 px-space-md rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-md text-body-sm flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">cached</span>
+<span>Recalculate</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Schedule Health & Feasibility Notice -->
+<div class="bg-surface-container-low rounded-xl p-space-md mb-space-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[19px]">event_available</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-body-sm text-on-surface">Curriculum Schedule Feasibility: 100% Scheduled</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span class="font-label-xs text-label-xs text-secondary font-semibold uppercase">Fully Balanced</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+          All 24 topics across 5 units mapped to 35 teaching slots. 2 buffer slots automatically reserved before Mid-Term examination week (Oct 12–17). No scheduling conflicts detected.
+        </p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs shrink-0 pl-11 md:pl-0">
+<span class="font-label-xs text-label-xs text-outline uppercase font-semibold">Sync Level</span>
+<span class="px-space-xs py-0.5 rounded font-tabular-data text-label-xs bg-surface-container-highest text-on-surface font-bold">1:1 Lockstep</span>
+</div>
+</div>
+<!-- Main Schedule Map - Weekly Timeline -->
+<div class="flex flex-col gap-space-xl">
+<!-- Week 01 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg flex flex-col gap-space-md">
+<!-- Week Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-sm gap-space-xs">
+<div class="flex items-center gap-space-md">
+<span class="px-2 py-1 rounded bg-primary text-on-primary font-title-md text-label-md tracking-wider uppercase">
+            Week 01
+          </span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:gap-space-sm">
+<span class="font-title-md text-body-md text-on-surface">Aug 18 – Aug 22, 2026</span>
+<span class="hidden sm:inline text-outline">•</span>
+<span class="font-headline-sm text-headline-sm text-on-surface-variant italic">Foundations &amp; System Architecture</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-tabular-data text-label-xs text-outline uppercase tracking-wider font-semibold">3 Slots Scheduled (3.0 hrs)</span>
+</div>
+</div>
+<!-- Slots Grid for Week 1 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Session #01 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Mon, Aug 18</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #01</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 1.1</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Data Mining Foundations, Motivations &amp; System Architecture
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" title="Edit slot details" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Session #02 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Wed, Aug 20</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #02</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 1.2</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Data Mining Task Primitives, Languages &amp; Architectures
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" title="Edit slot details" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Session #03 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Fri, Aug 22</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #03</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 1.3</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Major Issues &amp; Bottlenecks in Big Data Processing
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" title="Edit slot details" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Week 02 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg flex flex-col gap-space-md">
+<!-- Week Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-sm gap-space-xs">
+<div class="flex items-center gap-space-md">
+<span class="px-2 py-1 rounded bg-primary text-on-primary font-title-md text-label-md tracking-wider uppercase">
+            Week 02
+          </span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:gap-space-sm">
+<span class="font-title-md text-body-md text-on-surface">Aug 25 – Aug 29, 2026</span>
+<span class="hidden sm:inline text-outline">•</span>
+<span class="font-headline-sm text-headline-sm text-on-surface-variant italic">Warehouse Convergence &amp; Preprocessing</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-tabular-data text-label-xs text-outline uppercase tracking-wider font-semibold">2 Slots + 1 Holiday (2.0 hrs)</span>
+</div>
+</div>
+<!-- Slots Grid for Week 2 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Session #04 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Mon, Aug 25</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #04</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 1.4</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Overview of OLAP vs. OLTP and Data Mining Integration (Part 1)
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Session #05 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Wed, Aug 27</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #05</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 1.4</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Overview of OLAP vs. OLTP and Data Mining Integration (Part 2)
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Friday Holiday Card -->
+<div class="bg-tertiary-fixed/20 rounded-lg p-space-md flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between text-on-tertiary-container text-label-xs mb-space-xs">
+<span class="font-semibold">Fri, Aug 29</span>
+<span class="font-medium uppercase tracking-wider">Institution Blocked</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-tertiary-fixed text-on-tertiary-fixed-variant font-semibold">Academic Holiday</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              National Sports Day / Institutional Recess
+            </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">
+              Non-teaching Day — University calendar blocked. No syllabus sessions scheduled.
+            </p>
+</div>
+<div class="flex items-center gap-space-xs pt-space-md text-on-tertiary-container font-label-xs text-label-xs">
+<span class="material-symbols-outlined text-[15px]">lock</span>
+<span>Automatically Protected from Allocation</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Week 03 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg flex flex-col gap-space-md">
+<!-- Week Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-sm gap-space-xs">
+<div class="flex items-center gap-space-md">
+<span class="px-2 py-1 rounded bg-primary text-on-primary font-title-md text-label-md tracking-wider uppercase">
+            Week 03
+          </span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:gap-space-sm">
+<span class="font-title-md text-body-md text-on-surface">Sep 01 – Sep 05, 2026</span>
+<span class="hidden sm:inline text-outline">•</span>
+<span class="font-headline-sm text-headline-sm text-on-surface-variant italic">Data Cleaning &amp; Imputation</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-tabular-data text-label-xs text-outline uppercase tracking-wider font-semibold">3 Slots Scheduled (3.0 hrs)</span>
+</div>
+</div>
+<!-- Slots Grid for Week 3 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Session #06 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Mon, Sep 01</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #06</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 2.1</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Data Cleaning &amp; Missing Value Imputation Techniques
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Session #07 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Wed, Sep 03</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #07</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 2.2</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Data Integration &amp; Redundancy Analysis (Chi-Square Test)
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Session #08 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Fri, Sep 05</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #08</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 2.3</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Parametric &amp; Non-Parametric Numerosity Strategies
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Weeks 04 to 07 Collapsed Summary Pill -->
+<div class="bg-surface-container p-space-md rounded-xl flex items-center justify-between text-on-surface-variant">
+<div class="flex items-center gap-space-md">
+<span class="material-symbols-outlined text-outline">unfold_more</span>
+<div class="flex flex-col">
+<span class="font-title-md text-body-sm text-on-surface">Weeks 04 through 07 · Units 2.4 to 3.5 Mapped</span>
+<span class="font-body-sm text-body-sm text-outline">12 instructional sessions scheduled (Sep 08 – Oct 09, 2026)</span>
+</div>
+</div>
+<button class="text-on-surface font-title-md text-body-sm px-space-md py-1 rounded bg-surface-container-lowest hover:bg-surface-container-high transition-colors" type="button">
+        Expand All Weeks
+      </button>
+</div>
+<!-- Week 08 — EXAM PERIOD & ADAPTIVE BUFFER -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg flex flex-col gap-space-md">
+<!-- Week Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-sm gap-space-xs">
+<div class="flex items-center gap-space-md">
+<span class="px-2 py-1 rounded bg-on-tertiary-container text-on-tertiary font-title-md text-label-md tracking-wider uppercase">
+            Week 08
+          </span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:gap-space-sm">
+<span class="font-title-md text-body-md text-on-surface">Oct 12 – Oct 17, 2026</span>
+<span class="hidden sm:inline text-outline">•</span>
+<span class="font-headline-sm text-headline-sm text-on-tertiary-container italic">Mid-Term Assessment &amp; Buffer Review</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-tabular-data text-label-xs text-on-tertiary-container uppercase tracking-wider font-semibold">1 Buffer Slot + Exam Period</span>
+</div>
+</div>
+<!-- Slots Grid for Week 8 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Adaptive Buffer Slot -->
+<div class="bg-tertiary-fixed/30 rounded-lg p-space-md flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between text-on-tertiary-container text-label-xs mb-space-xs">
+<span class="font-semibold">Mon, Oct 12</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-tertiary-fixed text-on-tertiary-fixed-variant font-semibold">Adaptive Buffer</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #20</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Pre-Midterm Consolidation &amp; Doubt Clearing Session
+            </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs">
+              Reserved flexible window. Can absorb topic spillover from Unit 3 before exam lockdown.
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-md text-on-tertiary-container font-label-xs text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">shield</span>
+<span>Protected Pacing Buffer</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-tertiary-fixed/50 transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Institutional Mid-Term Assessment Block (Spanning 2 columns) -->
+<div class="md:col-span-2 bg-surface-container rounded-lg p-space-md flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Wed, Oct 14 – Sat, Oct 17, 2026</span>
+<span class="font-medium uppercase tracking-wider text-outline">Instruction Suspended</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-2 py-0.5 rounded font-label-xs text-label-xs bg-surface-container-high text-on-surface font-semibold">Institutional Assessment Window</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface leading-snug">
+              Mid-Term Examination Period · Units 1–3 Assessment Window
+            </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-xs max-w-xl">
+              All normal lectures suspended per university academic decree. Centralized exam hall allocation applies. Scheduling engine will resume lectures in Week 09.
+            </p>
+</div>
+<div class="flex items-center gap-space-md pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px]">event_seat</span>
+<span>Centrally Administered Examination</span>
+</div>
+<span class="text-outline">•</span>
+<span>Weightage: 30% Course Total</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Week 09 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg flex flex-col gap-space-md">
+<!-- Week Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-space-sm gap-space-xs">
+<div class="flex items-center gap-space-md">
+<span class="px-2 py-1 rounded bg-primary text-on-primary font-title-md text-label-md tracking-wider uppercase">
+            Week 09
+          </span>
+<div class="flex flex-col sm:flex-row sm:items-center sm:gap-space-sm">
+<span class="font-title-md text-body-md text-on-surface">Oct 19 – Oct 23, 2026</span>
+<span class="hidden sm:inline text-outline">•</span>
+<span class="font-headline-sm text-headline-sm text-on-surface-variant italic">Advanced Mining &amp; Apriori Rules</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-tabular-data text-label-xs text-outline uppercase tracking-wider font-semibold">2 Scheduled + 1 Available Buffer</span>
+</div>
+</div>
+<!-- Slots Grid for Week 9 -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Session #21 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Mon, Oct 19</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #21</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 4.1</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              Market Basket Analysis &amp; Support-Confidence Thresholding
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Session #22 -->
+<div class="bg-surface-container-low rounded-lg p-space-md flex flex-col justify-between group hover:bg-surface-container transition-colors">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Wed, Oct 21</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container text-on-surface-variant font-medium">Session #22</span>
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-secondary-container/40 text-on-secondary-container font-semibold">Unit 4.2</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface leading-snug">
+              The Apriori Algorithm: Join &amp; Prune Steps Analysis
+            </h4>
+</div>
+<div class="flex items-center justify-between pt-space-md text-outline font-body-sm text-label-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[15px]">meeting_room</span>
+<span>Room 402</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Available Teaching Slot / Overflow Buffer -->
+<div class="bg-surface-container/60 rounded-lg p-space-md flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between text-outline text-label-xs mb-space-xs">
+<span class="font-semibold text-on-surface">Fri, Oct 23</span>
+<span class="font-tabular-data">10:00 – 11:00 AM</span>
+</div>
+<div class="flex items-center gap-space-xs mb-space-xs">
+<span class="px-1.5 py-0.5 rounded font-label-xs text-label-xs bg-surface-container-high text-outline font-semibold">Unallocated Slot</span>
+</div>
+<h4 class="font-title-md text-body-sm text-on-surface-variant leading-snug">
+              Available Teaching Slot (+1.0 hr Buffer headroom)
+            </h4>
+<p class="font-body-sm text-body-sm text-outline mt-space-xs">
+              Unassigned regular timetable slot. Can host an extra lab demo or research seminar.
+            </p>
+</div>
+<div class="flex items-center justify-between pt-space-md">
+<span class="font-label-xs text-label-xs text-secondary font-medium">+60m Safety Capacity</span>
+<button class="px-space-sm py-1 rounded bg-surface-container-lowest hover:bg-surface-container-high text-on-surface font-title-md text-label-xs flex items-center gap-space-xxs transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">add</span>
+<span>Assign Topic</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Sticky Confirmation Dock -->
+<div class="sticky bottom-4 z-30 mt-space-xxl">
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-xl flex flex-col md:flex-row items-center justify-between gap-space-md">
+<!-- Left Summary Status -->
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-primary text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-body-md text-on-surface">35 / 35 Topics Mapped</span>
+<span class="text-outline">•</span>
+<span class="font-body-sm text-body-sm text-secondary font-semibold">4 Buffer Slots Reserved</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+            Projected Completion: <span class="font-medium text-on-surface">Nov 20, 2026</span> (6 days headroom before Term Finals)
+          </span>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-space-sm w-full md:w-auto justify-end">
+<button class="h-10 px-space-md rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-md text-body-sm transition-colors" type="button">
+          Back to Pacing Matrix
+        </button>
+<button class="h-10 px-space-md rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-title-md text-body-sm flex items-center gap-space-xs transition-colors" type="button">
+<span class="material-symbols-outlined text-[17px]">sync</span>
+<span>Recalculate Schedule</span>
+</button>
+<button class="h-10 px-space-lg rounded-lg bg-primary hover:bg-primary/90 text-on-primary font-title-md text-body-sm flex items-center gap-space-xs transition-colors" type="button">
+<span>Review Teaching Plan</span>
+<span class="material-symbols-outlined text-[17px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

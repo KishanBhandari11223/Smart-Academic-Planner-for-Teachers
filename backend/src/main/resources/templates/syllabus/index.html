@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Syllabus · ' + ${subject.name} + ' · Adaptive Teaching Planner'">Syllabus</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'subjects', 'Syllabus')}">
+<main class="planner-page syllabus-workspace">
+    <header class="page-header">
+        <div>
+            <a class="back-link" th:href="@{/subjects/{id}(id=${subject.id})}">← <span th:text="${subject.name}">Subject</span></a>
+            <p class="eyebrow">Curriculum setup / Syllabus</p>
+            <h1>Build your syllabus</h1>
+            <p class="intro">Organize the subject into units and teaching topics. This syllabus becomes the source for pacing plans.</p>
+        </div>
+        <div class="syllabus-summary syllabus-summary-large">
+            <span><strong th:text="${units.size()}">0</strong> units</span>
+            <span><strong th:text="${topicCount}">0</strong> topics</span>
+        </div>
+    </header>
+
+    <nav class="workflow-steps" aria-label="Planning workflow">
+        <span class="workflow-step is-complete"><b>01</b><span>Subject setup</span></span><span class="workflow-connector" aria-hidden="true"></span>
+        <span class="workflow-step is-current" aria-current="step"><b>02</b><span>Syllabus structure</span></span><span class="workflow-connector" aria-hidden="true"></span>
+        <span class="workflow-step"><b>03</b><span>Teaching schedule</span></span>
+    </nav>
+    <p class="notice" role="status" th:if="${message}" th:text="${message}"></p>
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+
+    <section class="syllabus-intro-panel" th:if="${!subject.archived}">
+        <div><p class="eyebrow">Curriculum outline</p><h2>Start with the topics you teach</h2><p>Enter the units and topics in order. Add estimated minutes to help build a realistic draft schedule.</p></div>
+        <span class="syllabus-mode-badge">Manual syllabus</span>
+    </section>
+    <section class="content-section" th:if="${!subject.archived}">
+        <div class="section-heading">
+            <div><p class="eyebrow">Structure</p><h2>Add a unit</h2></div>
+        </div>
+        <form class="planner-form panel form-grid" method="post" th:action="@{/subjects/{id}/syllabus/units(id=${subject.id})}">
+            <div>
+                <label for="unit-name">Unit name <span>Required</span></label>
+                <input id="unit-name" name="name" type="text" maxlength="160" required placeholder="For example, Cell Biology"
+                       th:value="${unitName}">
+            </div>
+            <div>
+                <label for="unit-description">Description <span>Optional</span></label>
+                <textarea id="unit-description" name="description" rows="2" maxlength="2000"
+                          placeholder="A short overview of this unit." th:text="${unitDescription}"></textarea>
+            </div>
+            <div class="form-grid-wide form-actions"><button class="button-link" type="submit">Add unit</button></div>
+        </form>
+    </section>
+    <p class="notice" th:if="${subject.archived}">This subject is archived. Restore it before editing the syllabus.</p>
+
+    <section class="content-section syllabus-units" aria-label="Syllabus units" th:if="${!#lists.isEmpty(units)}">
+        <article class="unit-card" th:each="unit, unitStat : ${units}">
+            <header class="unit-header">
+                <div class="unit-heading-copy">
+                    <span class="unit-order" th:text="${unit.sortOrder}">1</span>
+                    <div>
+                        <p class="eyebrow">Unit <span th:text="${unit.sortOrder}">1</span></p>
+                        <h2 th:text="${unit.name}">Unit name</h2>
+                        <p class="unit-description" th:if="${unit.description}" th:text="${unit.description}">Unit description</p>
+                    </div>
+                </div>
+                <div class="unit-actions" th:if="${!subject.archived}">
+                    <form method="post" th:action="@{/subjects/{subjectId}/syllabus/units/{unitId}/move(subjectId=${subject.id},unitId=${unit.id})}">
+                        <input type="hidden" name="direction" value="up">
+                        <button class="icon-button" type="submit" th:disabled="${unitStat.first}" aria-label="Move unit up" title="Move up">↑</button>
+                    </form>
+                    <form method="post" th:action="@{/subjects/{subjectId}/syllabus/units/{unitId}/move(subjectId=${subject.id},unitId=${unit.id})}">
+                        <input type="hidden" name="direction" value="down">
+                        <button class="icon-button" type="submit" th:disabled="${unitStat.last}" aria-label="Move unit down" title="Move down">↓</button>
+                    </form>
+                    <a class="text-link" th:href="@{/subjects/{subjectId}/syllabus/units/{unitId}/edit(subjectId=${subject.id},unitId=${unit.id})}">Edit unit</a>
+                    <a class="button-link secondary-link" th:href="@{/subjects/{subjectId}/syllabus/units/{unitId}/topics/new(subjectId=${subject.id},unitId=${unit.id})}">Add topic</a>
+                </div>
+            </header>
+
+            <div class="empty-state compact topic-empty" th:if="${#lists.isEmpty(unit.topics)}">
+                <p>No topics in this unit yet.</p>
+            </div>
+            <ol class="topic-list" th:if="${!#lists.isEmpty(unit.topics)}">
+                <li class="topic-row" th:each="topic, topicStat : ${unit.topics}">
+                    <div class="topic-order" th:text="${topic.sortOrder}">1</div>
+                    <div class="topic-copy">
+                        <div class="topic-title-row">
+                            <h3 th:text="${topic.title}">Topic title</h3>
+                            <span class="status-pill important-pill" th:if="${topic.important}">Important</span>
+                        </div>
+                        <p class="topic-description" th:if="${topic.description}" th:text="${topic.description}">Topic description</p>
+                        <p class="effort-label"><span th:text="${topic.estimatedEffortMinutes} + ' minutes'"></span> estimated</p>
+                    </div>
+                    <div class="topic-actions" th:if="${!subject.archived}">
+                        <form method="post" th:action="@{/subjects/{subjectId}/syllabus/units/{unitId}/topics/{topicId}/move(subjectId=${subject.id},unitId=${unit.id},topicId=${topic.id})}">
+                            <input type="hidden" name="direction" value="up">
+                            <button class="icon-button" type="submit" th:disabled="${topicStat.first}" aria-label="Move topic up" title="Move up">↑</button>
+                        </form>
+                        <form method="post" th:action="@{/subjects/{subjectId}/syllabus/units/{unitId}/topics/{topicId}/move(subjectId=${subject.id},unitId=${unit.id},topicId=${topic.id})}">
+                            <input type="hidden" name="direction" value="down">
+                            <button class="icon-button" type="submit" th:disabled="${topicStat.last}" aria-label="Move topic down" title="Move down">↓</button>
+                        </form>
+                        <a class="text-link" th:href="@{/subjects/{subjectId}/syllabus/units/{unitId}/topics/{topicId}/edit(subjectId=${subject.id},unitId=${unit.id},topicId=${topic.id})}">Edit</a>
+                    </div>
+                </li>
+            </ol>
+        </article>
+    </section>
+
+    <div class="empty-state syllabus-empty" th:if="${#lists.isEmpty(units)}">
+        <h2>Your syllabus starts with a unit</h2>
+        <p>Add units in the order you teach them, then add topics and effort estimates.</p>
+    </div>
+    <footer class="workflow-footer" th:if="${!subject.archived}">
+        <div><strong>Syllabus outline</strong><span><b th:text="${units.size()}">0</b> units · <b th:text="${topicCount}">0</b> topics</span></div>
+        <p>Changes are saved as you add or edit each unit and topic.</p>
+        <a class="button-link" th:if="${!#lists.isEmpty(units)}" th:href="@{/subjects/{id}(id=${subject.id})}">Continue to teaching schedule</a>
+    </footer>
+</main>
+</body>
+</html>

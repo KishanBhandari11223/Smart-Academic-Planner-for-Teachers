@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Calendar · Adaptive Teaching Planner</title><link rel="stylesheet" th:href="@{/styles.css}"></head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'calendar', 'Calendar')}"><main class="planner-page calendar-workspace">
+    <header class="page-header"><div><a class="back-link" th:href="@{/}">← Planner home</a><p class="eyebrow">Academic calendar / Approved sessions</p><h1>Teaching schedule</h1><p class="intro">See your approved class sessions and record what happened after each class.</p></div><a class="text-link" th:href="@{/progress}">View progress →</a></header>
+    <p class="notice" role="status" th:if="${message}" th:text="${message}"></p><p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+    <p class="notice" th:if="${proposalId}">A follow-up proposal is waiting below for your review. <a href="#adjustment-proposals">Review proposal</a></p>
+    <section class="calendar-filter-panel"><div class="section-heading"><div><p class="eyebrow">Schedule view</p><h2>Find class sessions</h2></div></div>
+        <form class="planner-form schedule-form calendar-range" method="get" th:action="@{/calendar}">
+            <div><label for="from">From</label><input id="from" name="from" type="date" required th:value="${calendar.fromDate}"></div><div><label for="to">Through</label><input id="to" name="to" type="date" required th:value="${calendar.toDate}"></div><button class="button-link" type="submit">Show dates</button>
+        </form>
+    </section>
+    <section class="content-section calendar-schedule-section"><div class="section-heading"><div><p class="eyebrow">Approved plans</p><h2>Class sessions</h2></div><span class="schedule-date-range" th:text="|${calendar.fromDate} — ${calendar.toDate}|">Date range</span></div>
+        <div class="empty-state compact" th:if="${#lists.isEmpty(calendar.days)}"><p>No approved sessions in this date range. Approve a pacing plan to populate the calendar.</p></div>
+        <div class="calendar-day-list" th:if="${!#lists.isEmpty(calendar.days)}"><section class="calendar-day" th:each="day : ${calendar.days}">
+            <h3 class="calendar-day-heading"><span class="calendar-day-marker" aria-hidden="true"></span><span th:text="${#temporals.format(day.date, 'EEEE, d MMMM yyyy')}">Monday, 1 January 2026</span></h3><div class="session-list">
+            <article class="session-row calendar-session" th:each="session : ${day.sessions}">
+                <div class="session-time"><strong th:text="|${session.startTime}–${session.endTime}|">09:00–10:00</strong><span th:text="|${session.effortMinutes} minutes planned|">60 minutes planned</span></div>
+                <div class="session-copy"><p class="eyebrow" th:text="|${session.plan.section.subject.name} · ${session.plan.section.name} · ${session.unitNameSnapshot}|">Subject · Class · Unit</p><h3 th:text="${session.topicTitleSnapshot}">Topic</h3>
+                    <p class="muted" th:if="${session.sessionType.name() == 'FOLLOW_UP'}">Follow-up session</p><p class="muted" th:if="${session.classOutcome != null}" th:text="|${session.classOutcome}: ${session.coveredMinutes} of ${session.effortMinutes} minutes covered|">Outcome</p><p class="muted" th:if="${session.outcomeNotes != null}" th:text="${session.outcomeNotes}">Notes</p></div>
+                <a class="button-link secondary-link" th:if="${session.classOutcome == null and !day.date.isAfter(today)}" th:href="@{/calendar/sessions/{id}/log(id=${session.id})}">Record class update</a><span class="status-pill" th:if="${session.classOutcome != null}" th:text="${session.classOutcome}">COMPLETED</span>
+            </article></div></section></div>
+    </section>
+    <section id="adjustment-proposals" class="content-section adjustment-review-section" th:if="${!#lists.isEmpty(calendar.pendingAdjustments)}"><div class="section-heading"><div><p class="eyebrow">Teacher review required</p><h2>Suggested schedule changes</h2></div><span class="review-required-pill">Not applied yet</span></div><p class="proposal-note">These follow-up times respond to a class update. Review each suggestion before it changes the calendar.</p>
+        <div class="proposal-list"><article class="proposal-card adjustment-card" th:each="proposal : ${calendar.pendingAdjustments}"><div class="adjustment-trigger"><span class="adjustment-symbol" aria-hidden="true">↗</span><div><p class="eyebrow" th:text="|${proposal.plan.section.subject.name} · ${proposal.plan.section.name} · ${proposal.unitNameSnapshot}|">Subject · Class · Unit</p><h3 th:text="${proposal.topicTitleSnapshot}">Topic</h3><p class="muted">Follow-up suggested after the class update</p></div></div><div class="adjustment-details"><span>Proposed session</span><strong th:text="|${proposal.proposedDate} · ${proposal.startTime}–${proposal.endTime}|">Suggested time</strong><span th:text="|${proposal.effortMinutes} minutes to complete|">Duration</span><p class="muted" th:if="${proposal.sourceSession.outcomeNotes != null}" th:text="${proposal.sourceSession.outcomeNotes}">Teacher note</p></div>
+            <div class="proposal-actions"><form method="post" th:action="@{/schedule-adjustments/{id}/apply(id=${proposal.id})}"><button class="button-link" type="submit">Add follow-up session</button></form><form method="post" th:action="@{/schedule-adjustments/{id}/dismiss(id=${proposal.id})}"><button class="text-button" type="submit">Keep original schedule</button></form></div>
+        </article></div>
+    </section>
+</main></body></html>

@@ -1,12 +1,10 @@
 # Adaptive Teaching Planner
 
-A frontend-only MVP for university instructors to set up a subject, review a syllabus, estimate topic effort, place sessions in real teaching slots, approve a plan, and adapt it after class.
-
-The implementation follows the supplied Stitch screens and editorial-planner reference. It is a runnable Next.js application—not a hosted service and not a production SaaS.
+A university teaching planner with a React/Vite frontend and a Spring Boot backend. Sign-in and a versioned planner-workspace API use Spring; the current UI data is stored per teacher in MySQL while the planner screens are progressively mapped to the backend's normalized domain services.
 
 ## Implemented
 
-- Demo sign-in with inline validation and sign-out.
+- Email OTP sign-in and JWT-cookie sign-out through Spring REST endpoints.
 - Dashboard, subject list, and subject workspace with the supplied subject tabs.
 - Three-step subject setup for course details, sections, pace mode, and weekly teaching slots.
 - Simulated syllabus extraction with file selection or manual text, plus editable units and topics.
@@ -16,44 +14,52 @@ The implementation follows the supplied Stitch screens and editorial-planner ref
 - Explicit plan approval before proposed sessions enter the global Calendar.
 - Lightweight post-class update for completed, partially covered, or not-covered outcomes.
 - A proposed follow-up session after partial or missed coverage, with apply/keep-original choices.
-- Browser-local persistence for the demo account and prototype data.
+- Per-teacher MySQL persistence for the current planner workspace; new accounts start empty, and existing account-scoped browser recovery data is imported only when that teacher has no server workspace.
 - Responsive layouts, reduced-motion support, and a restrained GSAP content entrance transition.
 
 The subject’s Tests & Revision, Analytics, and Team tabs have small explanatory placeholders; they are not expanded into invented workflows.
 
-## Technology
+## Current architecture
 
-- Next.js 16 App Router
-- React 19
-- TypeScript with strict checking
+- React 19, TypeScript, Vite, and React Router
 - GSAP for one scoped, reversible screen transition
 - Lucide icons
-- Custom CSS design tokens and responsive styles, chosen over a component library or utility framework to stay close to the Stitch references
+- Spring Boot 4.1.2, Spring Security, JPA/Hibernate, MySQL, and Flyway in `backend/`
+- Cookie-based JWT authentication with CSRF protection for state-changing requests
+
+The workspace API stores the current versioned `AppData` document in MySQL's `planner_workspaces` table (Flyway V6), scoped to the authenticated teacher and protected with CSRF and optimistic version checks. `localStorage` recovery copies are scoped by the signed-in email; the old unscoped browser record is not imported into a teacher account. This is a safe persistence bridge, not yet the final normalized REST integration: the existing Spring subject, syllabus, schedule, and calendar services still expose Thymeleaf controllers.
 
 ## Requirements
 
-- Node.js 20.9 or newer (Node 24 is also supported)
+- Node.js 20.9 or newer
 - npm
+- Java 25 and Maven
+- MySQL 8.4 or Docker Compose
+- Mailpit for local OTP email testing (optional)
 
-## Install and run
+## Local setup
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the local URL printed by Next.js (normally `http://localhost:3000`).
+The Vite app runs at `http://localhost:5173` and proxies `/api` requests to `http://localhost:8081` by default. Override the proxy target with `API_PROXY_TARGET`.
 
-## Demo access
+For local MySQL and Mailpit, copy `.env.example` to `.env`, set local-only passwords, and start the services:
 
-- **Email:** `example@123`
-- **Password:** `123`
+```bash
+docker compose up -d
+```
 
-This is deliberately frontend-only demo authentication. The credentials and check are visible in browser-delivered code. Do not use this mechanism to protect private information, authorize server actions, or represent a real user account.
+Copy `backend/.env.example` to `backend/.env`, use matching database credentials, and generate distinct Base64 secrets of at least 32 bytes for `JWT_SECRET_BASE64` and `OTP_HASH_SECRET_BASE64`. The examples contain placeholders only.
 
-## Data and persistence
+```bash
+cd backend
+mvn spring-boot:run
+```
 
-The sample Data Mining & Warehousing course, teaching sessions, class updates, and demo sign-in are stored in browser `localStorage`. Data is per browser and is not synchronized, backed up, or stored on a server. Use **Settings → Reset demo data** to restore the original sample.
+OTP messages are captured by Mailpit at `http://localhost:8025`. The backend exposes `/api/auth/csrf`, `/api/auth/send-otp`, `/api/auth/verify-otp`, `/api/auth/me`, and `/api/auth/logout`, plus `GET`/`PUT /api/planner/workspace`. On the first sign-in without a server workspace, the app imports only a valid browser recovery copy scoped to that account; otherwise, it creates an empty workspace. The browser copy is retained. Use **Settings → Clear planner data** to empty the signed-in teacher's workspace.
 
 The default sample has two completed sessions and an approved plan. Add Subject to try the complete setup and approval journey without changing the sample subject.
 
@@ -79,29 +85,35 @@ npm run dev        # Start the development server
 npm run typecheck  # Strict TypeScript check
 npm run lint       # ESLint
 npm run build      # Production build
-npm start          # Serve a completed production build
+npm start          # Preview a completed Vite production build
+npm test           # Frontend API-client tests
 ```
+
+Run backend tests with `mvn test` from `backend/`.
 
 ## Verification performed for this bundle
 
-- `npm run lint` — passed.
-- `npm run typecheck` — passed.
-- `npm audit` and `npm audit --omit=dev` — zero reported vulnerabilities.
-- `npm run build` — passed; the App Router entry was statically prerendered.
-- Production-server HTTP smoke test — returned the app title.
-- Direct schedule checks — syllabus order, holiday skipping, exhausted-period behavior, and next-open-slot proposal selection passed.
-
-Browser-driven interaction tests were not available, so the full multi-screen click-through was not claimed as end-to-end tested.
+- `npm run lint`, `npm run typecheck`, `npm test` (8 tests), and `npm run build` — passed for the Vite shell, auth, workspace client, and safe local-data import.
+- `mvn test` — passed 10 auth/logout CSRF and workspace authentication, CSRF, validation, payload-shape, and versioned-save tests.
+- Vite development-server smoke test — returned HTTP 200 and rendered the sign-in screen.
+- MySQL migration execution, backend database connectivity, and full browser-to-Spring OTP/workspace flow have not been verified in this environment.
+- `npm audit --omit=dev` — 0 production vulnerabilities; full `npm audit` still reports 11 moderate findings in the ESLint toolchain. The suggested `--force` remediation is breaking and was not applied.
+- The frontend dependency audit should be rerun after removing the obsolete Next.js runtime dependencies.
 
 ## Project structure
 
 ```text
 src/
-  app/              App Router entry, layout, and design tokens
+  App.tsx           React Router route host
+  main.tsx          Vite entry point and global styles
+  app/              Global styles
   components/       App shell, workflow screens, shared UI
   data/             Seed course and illustrative academic dates
-  lib/              Local persistence and planning algorithms
+  lib/              API client, local persistence, and planning algorithms
   types/            Shared domain and screen types
+backend/
+  src/main/java/     Spring application and planner services
+  src/main/resources/ Flyway migrations, properties, and existing Thymeleaf views
 docs/
   design-audit.md
   user-flows.md
@@ -114,16 +126,17 @@ docs/
 
 ## Known limitations
 
-- No backend, database, real authentication, file upload, or document parsing.
+- Planner mutations are stored as a versioned workspace JSON document; individual subject, syllabus, schedule, and calendar flows are not yet integrated with the normalized Spring domain services.
+- No production syllabus file upload, document parsing, Gemini integration, or object storage.
 - Institutional holidays, exam windows, teacher, and course records are illustrative.
 - The heuristic does not optimize multiple sections independently, room capacity, instructor conflicts across subjects, or partial-hour slot splitting.
 - Calendar shows approved/completed sessions, not pending proposals.
 - Secondary subject tabs are intentionally minimal.
 - No automated browser/E2E suite is included.
 
-## Next steps for a backend
+## Migration status
 
-Replace the local demo store with authenticated server actions/API endpoints; persist subjects, sections, outcomes, and approved sessions in a database; source academic events from an institution calendar; parse uploaded syllabus files on the server; add authorization and audit history; and test scheduling rules against a dedicated unit and browser test suite.
+The migration sequence and audited feature inventory are in [docs/migration-plan.md](./docs/migration-plan.md). The Next.js and Prisma runtime files have been removed. The legacy Prisma schema and migration files were also removed from this source tree; no PostgreSQL or MySQL database was dropped or modified by this cleanup.
 
 ## Design source
 

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${subject == null} ? 'Set up a subject · Adaptive Teaching Planner' : 'Edit subject · Adaptive Teaching Planner'">Set up a subject</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'subjects', 'Subject setup')}" class="app-body">
+<main class="planner-page subject-setup-page">
+    <a class="setup-back-link" th:href="${subject == null} ? @{/subjects} : @{/subjects/{id}(id=${subject.id})}">
+        <span aria-hidden="true">←</span>
+        <span th:text="${subject == null} ? 'Back to My Subjects' : 'Back to subject'">Back to My Subjects</span>
+    </a>
+
+    <header class="subject-setup-heading">
+        <div>
+            <p class="eyebrow">Curriculum setup <span aria-hidden="true">·</span> <span th:text="${subject == null} ? 'New subject' : 'Subject details'">New subject</span></p>
+            <h1 th:text="${subject == null} ? 'Set up a subject' : 'Edit subject details'">Set up a subject</h1>
+            <p class="intro" th:if="${subject == null}">Start with the subject you want to plan. You can add teaching sections and syllabus topics after it is saved.</p>
+            <p class="intro" th:if="${subject != null}">Update the subject name or its planning notes.</p>
+        </div>
+        <div class="setup-stage-label" th:if="${subject == null}">
+            <span>Setup stage</span>
+            <strong>01 <span>/ 03</span></strong>
+            <small>Subject details</small>
+        </div>
+    </header>
+
+    <nav class="setup-stepper" aria-label="Subject setup progress" th:if="${subject == null}">
+        <div class="setup-step is-current" aria-current="step">
+            <span class="setup-step-number">1</span>
+            <span class="setup-step-copy"><strong>Subject details</strong><small>Set the name and notes</small></span>
+        </div>
+        <span class="setup-step-connector" aria-hidden="true"></span>
+        <div class="setup-step">
+            <span class="setup-step-number">2</span>
+            <span class="setup-step-copy"><strong>Teaching sections</strong><small>Organize your cohorts</small></span>
+        </div>
+        <span class="setup-step-connector" aria-hidden="true"></span>
+        <div class="setup-step">
+            <span class="setup-step-number">3</span>
+            <span class="setup-step-copy"><strong>Syllabus and schedule</strong><small>Build your teaching plan</small></span>
+        </div>
+    </nav>
+
+    <p class="notice error" role="alert" th:if="${param.csrfExpired}">Your last submission was not saved because the form security token expired. Review the details and submit this refreshed form again.</p>
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+
+    <div class="subject-setup-layout">
+        <section class="subject-setup-card panel" aria-labelledby="subject-form-title">
+            <div class="setup-card-heading">
+                <p class="eyebrow" th:text="${subject == null} ? 'Step 1 of 3' : 'Subject information'">Step 1 of 3</p>
+                <h2 id="subject-form-title" th:text="${subject == null} ? 'What do you teach?' : 'Subject details'">What do you teach?</h2>
+                <p th:if="${subject == null}">Add the subject name and any notes that will help you plan its syllabus.</p>
+                <p th:if="${subject != null}">Keep the details for this subject clear and easy to recognize.</p>
+            </div>
+
+            <form class="planner-form subject-setup-form" method="post"
+                  th:action="${subject == null} ? @{/subjects} : @{/subjects/{id}(id=${subject.id})}">
+                <div class="setup-field">
+                    <label for="subject-name">Subject name <span>Required</span></label>
+                    <input id="subject-name" name="name" type="text" maxlength="120" required autocomplete="off"
+                           placeholder="Enter a subject or paper name"
+                           th:value="${name != null ? name : (subject != null ? subject.name : '')}">
+                    <p class="field-help">Use the name teachers will recognize in their planner. Up to 120 characters.</p>
+                </div>
+
+                <div class="setup-field">
+                    <label for="subject-description">Planning notes <span>Optional</span></label>
+                    <textarea id="subject-description" name="description" rows="5" maxlength="1000"
+                              placeholder="Add a course overview or planning note."
+                              th:text="${description != null ? description : (subject != null ? subject.description : '')}"></textarea>
+                    <div class="setup-description-footer">
+                        <p class="field-help">Add context you want to keep with this subject.</p>
+                        <span class="setup-character-count"><span id="description-count">0</span> / 1,000</span>
+                    </div>
+                </div>
+
+                <div class="subject-setup-actions">
+                    <a class="setup-cancel-link" th:href="${subject == null} ? @{/subjects} : @{/subjects/{id}(id=${subject.id})}">Cancel</a>
+                    <button class="button-link subject-setup-submit" type="submit" th:text="${subject == null} ? 'Create subject' : 'Save changes'">Create subject</button>
+                </div>
+            </form>
+        </section>
+
+        <aside class="subject-setup-aside" th:if="${subject == null}" aria-labelledby="setup-next-title">
+            <p class="eyebrow">After you save</p>
+            <h2 id="setup-next-title">Build the plan in stages</h2>
+            <p class="setup-aside-intro">Your subject will be saved first. Then the subject page lets you add the details the planner needs.</p>
+            <ol class="setup-next-list">
+                <li><span>01</span><div><strong>Add teaching sections</strong><p>Create the cohorts or groups you teach.</p></div></li>
+                <li><span>02</span><div><strong>Set teaching times</strong><p>Add weekly slots to each section.</p></div></li>
+                <li><span>03</span><div><strong>Enter syllabus topics</strong><p>Organize units and topics before generating a schedule.</p></div></li>
+            </ol>
+            <p class="setup-aside-note">You can return to edit these details later.</p>
+        </aside>
+    </div>
+    <script>
+        (() => {
+            const description = document.getElementById('subject-description');
+            const count = document.getElementById('description-count');
+            if (!description || !count) return;
+            const updateCount = () => { count.textContent = String(description.value.length); };
+            updateCount();
+            description.addEventListener('input', updateCount);
+        })();
+    </script>
+</main>
+</body>
+</html>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { gsap } from "gsap";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { LoginScreen } from "@/components/LoginScreen";
 import {
@@ -23,53 +24,162 @@ import {
   subjectDraftDefaults,
   type SubjectDraft,
 } from "@/components/Screens";
-import { academicEvents, initialData } from "@/data/seed";
+import { academicEvents } from "@/data/seed";
 import {
   blockedDateSet,
   buildAdjustmentProposal,
   generateSchedule,
 } from "@/lib/planning";
-import { loadAppData, loadDemoAuth, saveAppData, saveDemoAuth } from "@/lib/storage";
+import { apiFetch, fetchPlannerWorkspace, responseError, savePlannerWorkspace } from "@/lib/api";
+import { createEmptyAppData, isAppData, readStoredAppData, saveAppData } from "@/lib/storage";
+import { accountDisplayName, accountInitials, parseAuthenticatedUser } from "@/lib/account";
 import type { AppData, OutcomeKind, Subject, View } from "@/types";
 
+type PlannerRoute = {
+  view: View;
+  subjectId?: string;
+  sessionId?: string;
+};
+
+async function restorePlannerWorkspace(email: string): Promise<{ data: AppData; version: number }> {
+  const response = await fetchPlannerWorkspace();
+  if (response.status === 404) {
+    const data = readStoredAppData(email) ?? createEmptyAppData();
+    const version = await savePlannerWorkspace(data, null);
+    return { data, version };
+  }
+  if (!response.ok) {
+    throw new Error(await responseError(response, "Unable to load planner data."));
+  }
+
+  const body: unknown = await response.json();
+  if (
+    typeof body !== "object" ||
+    body === null ||
+    !("version" in body) ||
+    typeof body.version !== "number" ||
+    !Number.isInteger(body.version) ||
+    !("data" in body) ||
+    !isAppData(body.data)
+  ) {
+    throw new Error("The server returned an invalid planner workspace.");
+  }
+  return { data: body.data, version: body.version };
+}
+
+function plannerRouteFromPath(pathname: string): PlannerRoute | null {
+  if (pathname === "/") return { view: "home" };
+  if (pathname === "/subjects") return { view: "subjects" };
+  if (pathname === "/subjects/new") return { view: "create" };
+  if (pathname === "/calendar") return { view: "calendar" };
+  if (pathname === "/adjustment") return { view: "adjustment" };
+  if (pathname === "/profile") return { view: "profile" };
+  if (pathname === "/notifications") return { view: "notifications" };
+  if (pathname === "/settings") return { view: "settings" };
+
+  const sessionMatch = /^\/calendar\/sessions\/([^/]+)\/update$/.exec(pathname);
+  if (sessionMatch?.[1]) return { view: "update", sessionId: decodeURIComponent(sessionMatch[1]) };
+
+  const subjectMatch = /^\/subjects\/([^/]+)(?:\/(syllabus|pacing|schedule|review))?$/.exec(pathname);
+  if (subjectMatch?.[1]) {
+    const subview = subjectMatch[2];
+    const view: View = subview === "syllabus" || subview === "pacing" || subview === "schedule" || subview === "review"
+      ? subview
+      : "subject";
+    return { view, subjectId: decodeURIComponent(subjectMatch[1]) };
+  }
+
+  return null;
+}
+
+function pathForPlannerView(view: View, subjectId: string, sessionId: string): string {
+  const subjectPath = `/subjects/${encodeURIComponent(subjectId)}`;
+  switch (view) {
+    case "home": return "/";
+    case "subjects": return "/subjects";
+    case "subject": return subjectPath;
+    case "create": return "/subjects/new";
+    case "syllabus": return `${subjectPath}/syllabus`;
+    case "pacing": return `${subjectPath}/pacing`;
+    case "schedule": return `${subjectPath}/schedule`;
+    case "review": return `${subjectPath}/review`;
+    case "calendar": return "/calendar";
+    case "update": return sessionId ? `/calendar/sessions/${encodeURIComponent(sessionId)}/update` : "/calendar";
+    case "adjustment": return "/adjustment";
+    case "profile": return "/profile";
+    case "notifications": return "/notifications";
+    case "settings": return "/settings";
+  }
+}
+
 export function PlannerApp() {
-  const [data, setData] = useState<AppData>(initialData);
+  const location = useLocation();
+  const routerNavigate = useNavigate();
+  const initialRoute = plannerRouteFromPath(window.location.pathname);
+  const [data, setData] = useState<AppData>(createEmptyAppData);
   const [signedIn, setSignedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
   const [ready, setReady] = useState(false);
-  const [view, setView] = useState<View>("home");
-  const [subjectId, setSubjectId] = useState("subject-data-mining");
-  const [sessionId, setSessionId] = useState("");
+  const [workspaceReady, setWorkspaceReady] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [view, setView] = useState<View>(initialRoute?.view ?? "home");
+  const [subjectId, setSubjectId] = useState(initialRoute?.subjectId ?? "subject-data-mining");
+  const [sessionId, setSessionId] = useState(initialRoute?.sessionId ?? "");
   const [draft, setDraft] = useState<SubjectDraft>(subjectDraftDefaults());
   const [fileName, setFileName] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState("");
+  const workspaceVersion = useRef<number | null>(null);
+  const persistedSnapshot = useRef("");
+  const persistQueue = useRef<Promise<void>>(Promise.resolve());
 
+  const userName = userEmail ? accountDisplayName(userEmail) : "";
+  const userInitials = accountInitials(userName);
   const subject = useMemo(() => data.subjects.find((item) => item.id === subjectId) ?? data.subjects[0], [data.subjects, subjectId]);
   const blockedDates = useMemo(() => blockedDateSet(academicEvents), []);
 
   useEffect(() => {
+    const route = plannerRouteFromPath(location.pathname);
+    if (!route) return;
+    setView(route.view);
+    if (route.subjectId) setSubjectId(route.subjectId);
+    if (route.sessionId) setSessionId(route.sessionId);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const nextPath = pathForPlannerView(view, subjectId, sessionId);
+    if (location.pathname !== nextPath) routerNavigate(nextPath);
+  }, [location.pathname, routerNavigate, sessionId, subjectId, view]);
+
+  useEffect(() => {
     let mounted = true;
     const frame = window.requestAnimationFrame(async () => {
-      setData(loadAppData());
-
-      // Attempt to restore authenticated server session from cookie
       try {
-        const res = await fetch("/api/auth/me");
-        if (res.ok) {
-          const body = await res.json();
-          if (mounted && body.user) {
-            setSignedIn(true);
-            setReady(true);
-            return;
-          }
+        const response = await apiFetch("/api/auth/me");
+        if (!mounted) return;
+        if (response.ok) {
+          const user = parseAuthenticatedUser(await response.json());
+          const workspace = await restorePlannerWorkspace(user.email);
+          if (!mounted) return;
+          setData(workspace.data);
+          setUserEmail(user.email);
+          workspaceVersion.current = workspace.version;
+          persistedSnapshot.current = JSON.stringify(workspace.data);
+          setWorkspaceReady(true);
+          setSignedIn(true);
+        } else if (response.status !== 401) {
+          setAuthError(await responseError(response, "Unable to verify your sign-in. Please refresh and try again."));
         }
-      } catch {
-        // Fall back to demo authentication if server unreachable
+      } catch (requestError) {
+        if (mounted) {
+          setAuthError(requestError instanceof Error
+            ? requestError.message
+            : "Unable to connect to the sign-in service.");
+        }
       }
 
       if (mounted) {
-        setSignedIn(loadDemoAuth());
         setReady(true);
       }
     });
@@ -81,8 +191,30 @@ export function PlannerApp() {
   }, []);
 
   useEffect(() => {
-    if (ready) saveAppData(data);
-  }, [data, ready]);
+    if (ready && signedIn && userEmail) saveAppData(data, userEmail);
+  }, [data, ready, signedIn, userEmail]);
+
+  useEffect(() => {
+    if (!ready || !signedIn || !workspaceReady) return;
+    const snapshot = JSON.stringify(data);
+    if (snapshot === persistedSnapshot.current) return;
+
+    const timeout = window.setTimeout(() => {
+      persistQueue.current = persistQueue.current
+        .then(async () => {
+          if (snapshot === persistedSnapshot.current) return;
+          const version = await savePlannerWorkspace(data, workspaceVersion.current);
+          workspaceVersion.current = version;
+          persistedSnapshot.current = snapshot;
+        })
+        .catch((requestError: unknown) => {
+          showToast(requestError instanceof Error
+            ? `Planner data could not be saved: ${requestError.message}`
+            : "Planner data could not be saved. Please try again.");
+        });
+    }, 350);
+    return () => window.clearTimeout(timeout);
+  }, [data, ready, signedIn, workspaceReady]);
 
   useEffect(() => {
     if (!ready || !signedIn) return;
@@ -110,34 +242,46 @@ export function PlannerApp() {
   }
 
   function handleLoginSuccess(userEmail: string) {
-    saveDemoAuth(true);
-    setSignedIn(true);
-    setView("home");
-    showToast(`Signed in as ${userEmail}`);
-  }
-
-  function login(email: string, password: string): boolean {
-    const valid = email === "example@123" && password === "123";
-    if (valid) {
-      saveDemoAuth(true);
-      setSignedIn(true);
-      setView("home");
-    }
-    return valid;
+    void restorePlannerWorkspace(userEmail)
+      .then((workspace) => {
+        setData(workspace.data);
+        setUserEmail(userEmail);
+        workspaceVersion.current = workspace.version;
+        persistedSnapshot.current = JSON.stringify(workspace.data);
+        setWorkspaceReady(true);
+        setSignedIn(true);
+        setAuthError("");
+        setView("home");
+        showToast(`Signed in as ${userEmail}`);
+      })
+      .catch((requestError: unknown) => {
+        setAuthError(requestError instanceof Error
+          ? requestError.message
+          : "Unable to load planner data. Please try again.");
+      });
   }
 
   async function logout() {
     try {
-      await fetch("/api/auth/logout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
-    } catch {
-      // Ignore network errors on logout
+      const response = await apiFetch("/api/auth/logout", { method: "POST" });
+      if (!response.ok) {
+        const body: unknown = await response.json();
+        const message = typeof body === "object" && body !== null && "error" in body && typeof body.error === "string"
+          ? body.error
+          : `The server rejected sign-out (${response.status}).`;
+        throw new Error(message);
+      }
+    } catch (requestError) {
+      showToast(requestError instanceof Error
+        ? `Sign-out failed: ${requestError.message}`
+        : "Sign-out failed. Please try again.");
+      return;
     }
-    saveDemoAuth(false);
     setSignedIn(false);
+    setWorkspaceReady(false);
+    setUserEmail("");
     setView("home");
+    showToast("You have signed out.");
   }
 
   function updateSubject(subjectKey: string, patch: Partial<Subject>) {
@@ -300,11 +444,11 @@ export function PlannerApp() {
   }
 
   if (!ready) return <div className="app-loading" aria-label="Loading planner"><span className="loading-mark">✳</span></div>;
-  if (!signedIn) return <LoginScreen onSuccess={handleLoginSuccess} onLogin={login} />;
+  if (!signedIn) return <LoginScreen onSuccess={handleLoginSuccess} initialError={authError} />;
 
   let content: ReactNode;
   if (view === "home") {
-    content = <HomeScreen data={data} onNavigate={navigate} onSubject={(id) => selectSubject(id)} onUpdate={beginUpdate} search={search} />;
+    content = <HomeScreen data={data} accountName={userName} onNavigate={navigate} onSubject={(id) => selectSubject(id)} onUpdate={beginUpdate} search={search} />;
   } else if (view === "subjects") {
     content = <SubjectsScreen subjects={data.subjects} sessions={data.sessions} search={search} onCreate={() => { setDraft(subjectDraftDefaults()); setView("create"); }} onSubject={(id) => selectSubject(id)} />;
   } else if (view === "create") {
@@ -326,17 +470,17 @@ export function PlannerApp() {
     content = <CalendarScreen sessions={data.sessions} subjects={data.subjects} events={academicEvents} onUpdate={beginUpdate} onSubject={(id) => selectSubject(id)} />;
   } else if (view === "update" && subject) {
     const session = data.sessions.find((item) => item.id === sessionId);
-    content = session ? <UpdateScreen subject={subject} session={session} onSave={saveOutcome} onCancel={() => setView("subject")} /> : <HomeScreen data={data} onNavigate={navigate} onSubject={(id) => selectSubject(id)} onUpdate={beginUpdate} search={search} />;
+    content = session ? <UpdateScreen subject={subject} session={session} onSave={saveOutcome} onCancel={() => setView("subject")} /> : <HomeScreen data={data} accountName={userName} onNavigate={navigate} onSubject={(id) => selectSubject(id)} onUpdate={beginUpdate} search={search} />;
   } else if (view === "adjustment" && subject && data.lastProposal) {
     content = <AdjustmentScreen subject={subject} proposal={data.lastProposal} sessions={data.sessions} onApply={applyAdjustment} onKeep={keepOriginalPlan} />;
   } else if (view === "notifications") {
     content = <NotificationsScreen onNavigate={navigate} />;
   } else if (view === "settings") {
-    content = <SettingsScreen onReset={() => { setData(initialData); setView("home"); showToast("Demo data reset."); }} onLogout={logout} />;
+    content = <SettingsScreen onReset={() => { setData(createEmptyAppData()); setView("home"); showToast("Planner data cleared."); }} onLogout={logout} />;
   } else if (view === "profile") {
-    content = <ProfileScreen onLogout={logout} />;
+    content = <ProfileScreen accountName={userName} accountEmail={userEmail} accountAvatar={userInitials} onLogout={logout} />;
   } else {
-    content = <HomeScreen data={data} onNavigate={navigate} onSubject={(id) => selectSubject(id)} onUpdate={beginUpdate} search={search} />;
+    content = <HomeScreen data={data} accountName={userName} onNavigate={navigate} onSubject={(id) => selectSubject(id)} onUpdate={beginUpdate} search={search} />;
   }
 
   const globalNavView: View = ["home", "subjects", "calendar", "notifications", "settings"].includes(view)
@@ -346,6 +490,9 @@ export function PlannerApp() {
   return (
     <AppShell
       view={globalNavView}
+      accountName={userName}
+      accountEmail={userEmail}
+      accountAvatar={userInitials}
       onNavigate={navigate}
       onProfile={() => setView("profile")}
       searchValue={search}
@@ -357,4 +504,3 @@ export function PlannerApp() {
     </AppShell>
   );
 }
-

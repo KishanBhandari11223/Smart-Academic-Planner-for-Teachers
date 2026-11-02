@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pacing plans · Adaptive Teaching Planner</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'calendar', 'Teaching plans')}">
+<main class="planner-page narrow-page">
+    <header class="page-header">
+        <div>
+            <a class="back-link" th:href="@{/sections/{id}(id=${section.id})}">← <span th:text="${section.name}">Section</span></a>
+            <p class="eyebrow">Pacing and schedule</p>
+            <h1>Plans for this section</h1>
+        </div>
+        <a class="button-link" th:href="@{/sections/{id}/plans/new(id=${section.id})}">Create a plan</a>
+    </header>
+
+    <p class="notice" role="status" th:if="${message}" th:text="${message}"></p>
+
+    <div class="empty-state" th:if="${#lists.isEmpty(plans)}">
+        <h2>No pacing plans yet</h2>
+        <p>Choose a date range and teaching days to create your first draft schedule.</p>
+        <a class="button-link" th:href="@{/sections/{id}/plans/new(id=${section.id})}">Create a plan</a>
+    </div>
+
+    <section class="plan-list" aria-label="Pacing plans" th:if="${!#lists.isEmpty(plans)}">
+        <article class="plan-card" th:each="plan : ${plans}">
+            <div>
+                <span class="status-pill" th:classappend="${plan.status.name() == 'APPROVED'} ? ' approved-pill' : ''"
+                      th:text="${plan.status}">DRAFT</span>
+                <h2><a th:href="@{/plans/{id}(id=${plan.id})}" th:text="${plan.name}">Plan name</a></h2>
+                <p class="muted" th:text="|${plan.startDate} to ${plan.endDate}|">Date range</p>
+            </div>
+            <a class="text-link" th:href="@{/plans/{id}(id=${plan.id})}">Open plan</a>
+        </article>
+    </section>
+</main>
+</body>
+</html>

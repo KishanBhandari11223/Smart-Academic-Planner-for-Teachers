@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in · Adaptive Teaching Planner</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+<main class="welcome-card login-card">
+    <p class="eyebrow">Adaptive Teaching Planner</p>
+    <h1>Sign in to your planner.</h1>
+    <p class="intro">Use your email address to receive a one-time sign-in code. New teacher accounts are created after the code is verified.</p>
+
+    <p class="notice" role="status" th:if="${message}" th:text="${message}"></p>
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+    <p class="notice" role="status" th:if="${param.loggedOut}">You have signed out.</p>
+
+    <form class="auth-form" method="post" th:action="@{/login/request-code}">
+        <label for="request-email">Email address</label>
+        <input id="request-email" name="email" type="email" maxlength="254" autocomplete="email" required
+               placeholder="you@school.edu" th:value="${email}">
+        <button type="submit">Email me a sign-in code</button>
+    </form>
+
+    <form class="auth-form verify-form" method="post" th:action="@{/login/verify-code}">
+        <label for="verify-email">Email address</label>
+        <input id="verify-email" name="email" type="email" maxlength="254" autocomplete="email" required
+               placeholder="you@school.edu" th:value="${email}">
+        <label for="code">Six-digit code</label>
+        <input id="code" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6"
+               autocomplete="one-time-code" required placeholder="000000">
+        <button type="submit" class="secondary-button">Verify and sign in</button>
+    </form>
+</main>
+</body>
+</html>

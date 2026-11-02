@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Create pacing plan · Adaptive Teaching Planner</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'calendar', 'Create a pacing plan')}">
+<main class="planner-page pacing-setup-page">
+    <header class="page-header">
+        <div>
+            <a class="back-link" th:href="@{/sections/{id}/plans(id=${section.id})}">← Back to plans</a>
+            <p class="eyebrow" th:text="|${section.subject.name} · ${section.name}|">Section</p>
+            <h1>Plan your teaching pace</h1>
+            <p class="intro">Choose the teaching window and weekly days. The planner will create a draft from this section's syllabus and teaching times.</p>
+        </div>
+    </header>
+
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+    <nav class="workflow-steps" aria-label="Planning workflow">
+        <span class="workflow-step is-complete"><b>01</b><span>Syllabus</span></span><span class="workflow-connector" aria-hidden="true"></span>
+        <span class="workflow-step is-current" aria-current="step"><b>02</b><span>Pacing plan</span></span><span class="workflow-connector" aria-hidden="true"></span>
+        <span class="workflow-step"><b>03</b><span>Review schedule</span></span>
+    </nav>
+    <section class="pacing-context panel">
+        <div><span class="pacing-context-icon" aria-hidden="true">01</span><div><p class="eyebrow">Section</p><strong th:text="|${section.subject.name} · ${section.name}|">Subject · Section</strong></div></div>
+        <div><span class="pacing-context-icon" aria-hidden="true">02</span><div><p class="eyebrow">Available teaching days</p><strong th:text="${availableDays.size()}">0</strong></div></div>
+        <p>Generated sessions remain a draft until you review and approve them.</p>
+    </section>
+    <div class="empty-state compact" th:if="${#lists.isEmpty(availableDays)}">
+        <p>Add a weekly teaching time to this section before creating a pacing plan.</p>
+    </div>
+
+    <form class="planner-form panel pacing-form" method="post" th:action="@{/sections/{id}/plans(id=${section.id})}"
+          th:if="${!#lists.isEmpty(availableDays)}">
+        <div class="form-section-title"><p class="eyebrow">Plan details</p><h2>Name your teaching plan</h2><p>Use a name that helps you recognize this schedule later.</p></div>
+        <label for="plan-name">Plan name <span>Required</span></label>
+        <input id="plan-name" name="name" type="text" maxlength="120" required placeholder="For example, Fall term pacing"
+               th:value="${name}">
+
+        <div class="form-grid pacing-date-fields">
+            <div><label for="start-date">Starts</label><input id="start-date" name="startDate" type="date" required th:value="${startDate}"></div>
+            <div><label for="end-date">Ends</label><input id="end-date" name="endDate" type="date" required th:value="${endDate}"></div>
+        </div>
+
+        <fieldset class="day-picker">
+            <legend>Weekly teaching days</legend>
+            <p class="field-help">Only days with weekly teaching times are available. All section slots on selected days are used.</p>
+            <label class="day-option" th:each="day : ${availableDays}">
+                <input type="checkbox" name="days" th:value="${day.name()}"
+                       th:checked="${selectedDays != null and selectedDays.contains(day.name())}">
+                <span th:text="${#strings.capitalize(#strings.toLowerCase(day.name()))}">Monday</span>
+            </label>
+        </fieldset>
+
+        <div class="pacing-guidance"><strong>How the draft is built</strong><p>Topics follow their syllabus order. Estimated effort can continue across multiple available teaching slots. You can block holidays and exam dates before generating.</p></div>
+        <div class="form-actions">
+            <a class="button-link secondary-link" th:href="@{/sections/{id}/plans(id=${section.id})}">Cancel</a>
+            <button class="button-link" type="submit">Create draft plan</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>

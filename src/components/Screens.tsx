@@ -31,12 +31,14 @@ import type {
 
 export function HomeScreen({
   data,
+  accountName,
   onNavigate,
   onSubject,
   onUpdate,
   search,
 }: {
   data: AppData;
+  accountName: string;
   onNavigate: (view: View) => void;
   onSubject: (subjectId: string) => void;
   onUpdate: (sessionId: string) => void;
@@ -58,7 +60,7 @@ export function HomeScreen({
     <div className="screen-stack">
       <PageHeading
         eyebrow={new Date().toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric" })}
-        title="Good morning, Kartikey."
+        title={`Good morning, ${accountName}.`}
         description="Your teaching week, at a glance."
         action={<Button onClick={() => onNavigate("create")} variant="primary" icon={<Plus size={16} />}>Add subject</Button>}
       />
@@ -651,11 +653,21 @@ export function NotificationsScreen({ onNavigate }: { onNavigate: (view: View) =
 
 export function SettingsScreen({ onReset, onLogout }: { onReset: () => void; onLogout: () => void }) {
   const [confirm, setConfirm] = useState(false);
-  return <div className="screen-stack"><PageHeading eyebrow="Preferences" title="Settings" description="Prototype preferences and local demo data." /><section className="panel settings-section"><div><p className="eyebrow">Data & privacy</p><h2>Browser-only prototype</h2><p className="quiet-copy">Subjects, plans, class updates, and demo sign-in are stored in this browser’s local storage. Nothing is synced to a server.</p></div><div className="settings-actions">{confirm ? <><span className="inline-warning">This will replace your local demo data with the original sample.</span><Button variant="danger" onClick={() => { onReset(); setConfirm(false); }}>Confirm reset</Button><Button onClick={() => setConfirm(false)}>Cancel</Button></> : <Button onClick={() => setConfirm(true)} icon={<RotateCcw size={14} />}>Reset demo data</Button>}</div></section><section className="panel settings-section"><div><p className="eyebrow">Session</p><h2>Demo access</h2><p className="quiet-copy">The sign-in screen is a convenience for this prototype. It is not security or authorization.</p></div><Button onClick={onLogout}>Sign out</Button></section></div>;
+  return <div className="screen-stack"><PageHeading eyebrow="Preferences" title="Settings" description="Manage your account and planner data." /><section className="panel settings-section"><div><p className="eyebrow">Data & privacy</p><h2>Planner workspace</h2><p className="quiet-copy">Your planner workspace is saved to your authenticated account. Clear it to start with an empty workspace.</p></div><div className="settings-actions">{confirm ? <><span className="inline-warning">This permanently clears subjects, sessions, and outcomes from this account’s workspace.</span><Button variant="danger" onClick={() => { onReset(); setConfirm(false); }}>Clear planner data</Button><Button onClick={() => setConfirm(false)}>Cancel</Button></> : <Button onClick={() => setConfirm(true)} icon={<RotateCcw size={14} />}>Clear planner data</Button>}</div></section><section className="panel settings-section"><div><p className="eyebrow">Session</p><h2>Account access</h2><p className="quiet-copy">Sign out of your teaching-planner account on this browser.</p></div><Button onClick={onLogout}>Sign out</Button></section></div>;
 }
 
-export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
-  return <div className="screen-stack"><PageHeading eyebrow="Faculty profile" title="Kartikey Joshi" description="Department of Computer Science & Engineering · Faculty workspace." /><section className="panel profile-page"><div className="large-avatar">KJ</div><div><p className="eyebrow">Teaching overview</p><h2>University faculty</h2><p className="quiet-copy">Your profile details are sample information for this prototype. Edit and institutional directory features are not connected.</p></div><div className="profile-details"><div><span>Academic year</span><strong>2026–27</strong></div><div><span>Subjects</span><strong>Adaptive teaching</strong></div><div><span>Workspace</span><strong>Faculty</strong></div></div><Button onClick={onLogout}>Sign out</Button></section></div>;
+export function ProfileScreen({
+  accountName,
+  accountEmail,
+  accountAvatar,
+  onLogout,
+}: {
+  accountName: string;
+  accountEmail: string;
+  accountAvatar: string;
+  onLogout: () => void;
+}) {
+  return <div className="screen-stack"><PageHeading eyebrow="Account profile" title={accountName} description="Your authenticated teaching-planner account." /><section className="panel profile-page"><div className="large-avatar">{accountAvatar}</div><div><p className="eyebrow">Account details</p><h2>{accountName}</h2><p className="quiet-copy">{accountEmail}</p></div><div className="profile-details"><div><span>Email</span><strong>{accountEmail}</strong></div><div><span>Workspace</span><strong>Private to this account</strong></div></div><Button onClick={onLogout}>Sign out</Button></section></div>;
 }
 
 export function subjectDraftDefaults(): SubjectDraft {
@@ -711,4 +723,3 @@ export function clonedSampleSyllabus(prefix: string): Pick<Subject, "units" | "t
 export function accessibleTopicTitle(subject: Subject, topicId: string): string {
   return subject.topics.find((topic) => topic.id === topicId)?.title ?? "Teaching topic";
 }
-

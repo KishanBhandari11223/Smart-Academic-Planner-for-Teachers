@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="|${details.plan.name} · Adaptive Teaching Planner|">Pacing plan</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'calendar', 'Plan review')}">
+<main class="planner-page plan-review-page">
+    <header class="page-header">
+        <div>
+            <a class="back-link" th:href="@{/sections/{id}/plans(id=${details.plan.section.id})}">← <span th:text="${details.plan.section.name}">Section</span> plans</a>
+            <p class="eyebrow" th:text="|${details.plan.section.subject.name} · ${details.plan.section.name}|">Section</p>
+            <h1 th:text="${details.plan.name}">Plan name</h1>
+            <p class="intro" th:text="|${details.plan.startDate} through ${details.plan.endDate}|">Date range</p>
+        </div>
+        <span class="status-pill plan-status" th:classappend="${details.plan.status.name() == 'APPROVED'} ? ' approved-pill' : ''"
+              th:text="${details.plan.status}">DRAFT</span>
+    </header>
+
+    <p class="notice" role="status" th:if="${message}" th:text="${message}"></p>
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+
+    <nav class="workflow-steps" aria-label="Planning workflow">
+        <span class="workflow-step is-complete"><b>01</b><span>Syllabus</span></span><span class="workflow-connector" aria-hidden="true"></span>
+        <span class="workflow-step is-complete"><b>02</b><span>Pacing plan</span></span><span class="workflow-connector" aria-hidden="true"></span>
+        <span class="workflow-step is-current" aria-current="step"><b>03</b><span>Review schedule</span></span>
+    </nav>
+    <section class="plan-review-overview">
+        <div><span class="eyebrow">Teaching days</span><strong th:text="${details.selectedDays.size()}">0</strong><small>weekly days selected</small></div>
+        <div><span class="eyebrow">Schedule range</span><strong class="plan-range-value" th:text="|${details.plan.startDate} — ${details.plan.endDate}|">Date range</strong><small>draft period</small></div>
+        <div><span class="eyebrow">Planned sessions</span><strong th:text="${details.sessions.size()}">0</strong><small th:text="${details.plan.status}">DRAFT</small></div>
+    </section>
+
+    <div class="notice warning-notice" th:if="${details.plan.needsGeneration and details.plan.generatedAt != null}">
+        Plan settings changed. The displayed schedule is an older draft; regenerate it before approval.
+    </div>
+    <div class="notice" th:if="${details.plan.generatedAt == null}">
+        No proposal has been generated yet. Generating creates a draft for review and does not add sessions to a calendar.
+    </div>
+    <div class="notice" th:if="${details.plan.status.name() == 'APPROVED'}">
+        This proposal is approved. Its sessions are ready for the calendar workflow.
+    </div>
+
+    <section class="content-section plan-meta">
+        <div class="section-heading">
+            <div><p class="eyebrow">Selected days</p><h2>Weekly teaching days</h2></div>
+        </div>
+        <div class="day-chips">
+            <span class="day-chip" th:each="day : ${details.selectedDays}"
+                  th:text="${#strings.capitalize(#strings.toLowerCase(day.dayOfWeek.name()))}">Monday</span>
+        </div>
+    </section>
+
+    <section class="content-section">
+        <div class="section-heading">
+            <div><p class="eyebrow">Holidays and exams</p><h2>Blocked dates</h2></div>
+        </div>
+        <p class="muted" th:if="${#lists.isEmpty(details.blockedDates)}">No dates are blocked. Add holidays or exams that should be skipped.</p>
+        <div class="blocked-date-list" th:if="${!#lists.isEmpty(details.blockedDates)}">
+            <div class="blocked-date-row" th:each="blocked : ${details.blockedDates}">
+                <div>
+                    <span class="status-pill" th:text="${blocked.category}">HOLIDAY</span>
+                    <strong th:text="${blocked.blockedDate}">Date</strong>
+                    <span th:text="${blocked.label}">Reason</span>
+                </div>
+                <form method="post" th:if="${details.plan.status.name() == 'DRAFT'}"
+                      th:action="@{/plans/{planId}/blocked-dates/{blockedId}/remove(planId=${details.plan.id},blockedId=${blocked.id})}">
+                    <button class="text-button danger-button" type="submit">Remove</button>
+                </form>
+            </div>
+        </div>
+        <form class="planner-form panel blocked-date-form" method="post"
+              th:if="${details.plan.status.name() == 'DRAFT'}" th:action="@{/plans/{id}/blocked-dates(id=${details.plan.id})}">
+            <div><label for="blocked-date">Date</label><input id="blocked-date" name="date" type="date" required
+                                                               th:min="${details.plan.startDate}" th:max="${details.plan.endDate}"></div>
+            <div><label for="blocked-category">Type</label>
+                <select id="blocked-category" name="category" required>
+                    <option value="HOLIDAY">Holiday</option><option value="EXAM">Exam</option><option value="OTHER">Other</option>
+                </select>
+            </div>
+            <div><label for="blocked-label">Name or reason</label><input id="blocked-label" name="label" type="text" maxlength="160" required placeholder="For example, Midterm exam"></div>
+            <button class="button-link secondary-link" type="submit">Block date</button>
+        </form>
+    </section>
+
+    <section class="content-section proposal-section">
+        <div class="section-heading">
+            <div><p class="eyebrow">Teaching plan review</p><h2>Schedule proposal</h2></div>
+            <form method="post" th:if="${details.plan.status.name() == 'DRAFT'}" th:action="@{/plans/{id}/generate(id=${details.plan.id})}">
+                <button class="button-link secondary-link" type="submit"
+                        th:text="${details.plan.generatedAt == null} ? 'Generate proposal' : 'Regenerate proposal'">Generate proposal</button>
+            </form>
+        </div>
+        <p class="proposal-note">Topic effort is allocated in syllabus order across the selected weekly slots. Partial topics continue in the next available slot.</p>
+
+        <div class="empty-state compact" th:if="${details.plan.generatedAt != null and #lists.isEmpty(details.sessions)}">
+            <p>No topics fit in the selected days and date range. Adjust the range or teaching days before approving.</p>
+        </div>
+        <div class="empty-state compact" th:if="${details.plan.generatedAt == null}">
+            <p>Generate a proposal to see the scheduled time blocks and any topics that need more time.</p>
+        </div>
+
+        <div class="session-list" th:if="${!#lists.isEmpty(details.sessions)}">
+            <article class="session-row" th:each="session : ${details.sessions}">
+                <div class="session-time">
+                    <strong th:text="${session.scheduledDate}">Date</strong>
+                    <span th:text="|${session.startTime}–${session.endTime}|">09:00–10:00</span>
+                </div>
+                <div class="session-copy">
+                    <p class="eyebrow" th:text="${session.unitNameSnapshot}">Unit</p>
+                    <h3 th:text="${session.topicTitleSnapshot}">Topic</h3>
+                    <p class="muted" th:text="|${session.effortMinutes} minutes allocated|"></p>
+                </div>
+                <span class="status-pill important-pill" th:if="${session.importantSnapshot}">Important</span>
+            </article>
+        </div>
+    </section>
+
+    <section class="content-section overflow-section" th:if="${!#lists.isEmpty(details.unplannedTopics)}">
+        <div class="section-heading">
+            <div><p class="eyebrow">Needs more time</p><h2>Topics not fully scheduled</h2></div>
+        </div>
+        <p class="muted">Create another draft with a longer date range or additional teaching days to fit the remaining effort.</p>
+        <ul class="overflow-list">
+            <li th:each="item : ${details.unplannedTopics}">
+                <span><strong th:text="${item.topicTitleSnapshot}">Topic</strong><small th:text="${item.unitNameSnapshot}">Unit</small></span>
+                <span th:text="|${item.remainingEffortMinutes} of ${item.totalEffortMinutes} min remaining|"></span>
+            </li>
+        </ul>
+    </section>
+
+    <section class="approval-panel" th:if="${details.plan.status.name() == 'DRAFT'}">
+        <div>
+            <h2>Approve this plan?</h2>
+            <p>Approval records this schedule as ready for the calendar workflow. It does not change calendar entries yet.</p>
+        </div>
+        <form method="post" th:action="@{/plans/{id}/approve(id=${details.plan.id})}">
+            <button class="button-link" type="submit"
+                    th:disabled="${details.plan.generatedAt == null or details.plan.needsGeneration or #lists.isEmpty(details.sessions)}">Approve plan</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>

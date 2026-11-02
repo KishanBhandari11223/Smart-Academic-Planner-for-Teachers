@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${topic == null} ? 'Add topic · Adaptive Teaching Planner' : 'Edit topic · Adaptive Teaching Planner'">Topic</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'subjects', 'Syllabus topic')}">
+<main class="planner-page narrow-page">
+    <header class="page-header">
+        <div>
+            <a class="back-link" th:href="@{/subjects/{id}/syllabus(id=${subject.id})}">← <span th:text="${subject.name}">Subject</span> syllabus</a>
+            <p class="eyebrow" th:text="${unit.name}">Unit</p>
+            <h1 th:text="${topic == null} ? 'Add a topic' : 'Edit topic'">Add a topic</h1>
+        </div>
+    </header>
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+    <form class="planner-form panel" method="post"
+          th:action="${topic == null} ? @{/subjects/{subjectId}/syllabus/units/{unitId}/topics(subjectId=${subject.id},unitId=${unit.id})} : @{/subjects/{subjectId}/syllabus/units/{unitId}/topics/{topicId}(subjectId=${subject.id},unitId=${unit.id},topicId=${topic.id})}">
+        <label for="topic-title">Topic title</label>
+        <input id="topic-title" name="title" type="text" maxlength="180" required placeholder="For example, Cell structure"
+               th:value="${topicTitle != null ? topicTitle : (topic != null ? topic.title : '')}">
+
+        <label for="topic-description">Description <span>Optional</span></label>
+        <textarea id="topic-description" name="description" rows="5" maxlength="2000"
+                  placeholder="What should students learn or practice?"
+                  th:text="${topicDescription != null ? topicDescription : (topic != null ? topic.description : '')}"></textarea>
+
+        <label for="effort-minutes">Estimated teaching effort in minutes</label>
+        <input id="effort-minutes" name="effortMinutes" type="number" min="1" max="10080" step="1" required
+               th:value="${effortMinutes != null ? effortMinutes : (topic != null ? topic.estimatedEffortMinutes : 60)}">
+        <p class="field-help">Use minutes so future schedule generation can place topics in teaching slots.</p>
+
+        <label class="checkbox-field" for="important">
+            <span><strong>Mark as important</strong><small>Keep this topic visible as a priority during planning.</small></span>
+            <input id="important" name="important" type="checkbox"
+                   th:checked="${important != null ? important : (topic != null ? topic.important : false)}">
+        </label>
+
+        <div class="form-actions">
+            <a class="button-link secondary-link" th:href="@{/subjects/{id}/syllabus(id=${subject.id})}">Cancel</a>
+            <button class="button-link" type="submit" th:text="${topic == null} ? 'Add topic' : 'Save topic'">Save topic</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>

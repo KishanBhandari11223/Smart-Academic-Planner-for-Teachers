@@ -3,24 +3,22 @@
 import { BookOpenCheck, CalendarDays, Sparkles, Mail, KeyRound, ArrowLeft } from "lucide-react";
 import { useState, useEffect, type FormEvent } from "react";
 import { Button } from "@/components/ui";
+import { parseAuthenticatedUser } from "@/lib/account";
+import { apiFetch, responseError } from "@/lib/api";
 
 interface LoginScreenProps {
   onSuccess: (email: string) => void;
-  onLogin?: (email: string, password: string) => boolean;
+  initialError?: string;
 }
 
-export function LoginScreen({ onSuccess, onLogin }: LoginScreenProps) {
+export function LoginScreen({ onSuccess, initialError = "" }: LoginScreenProps) {
   const [step, setStep] = useState<"email" | "verify">("email");
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
-
-  // Prototype demo fallback toggle
-  const [showDemoFallback, setShowDemoFallback] = useState(false);
-  const [demoPassword, setDemoPassword] = useState("");
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -29,6 +27,10 @@ export function LoginScreen({ onSuccess, onLogin }: LoginScreenProps) {
     }, 1000);
     return () => clearInterval(timer);
   }, [cooldown]);
+
+  useEffect(() => {
+    setError(initialError);
+  }, [initialError]);
 
   async function handleSendOtp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,23 +42,25 @@ export function LoginScreen({ onSuccess, onLogin }: LoginScreenProps) {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/send-otp", {
+      const res = await apiFetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: cleanEmail }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        setError(data.error || "Failed to send verification code.");
+        setError(await responseError(res, `Failed to send verification code (${res.status}).`));
       } else {
+        const data: unknown = await res.json();
+        if (typeof data !== "object" || data === null || !("message" in data) || typeof data.message !== "string") {
+          throw new Error("The server returned an invalid response when requesting a sign-in code.");
+        }
         setStep("verify");
         setCooldown(60);
-        setInfo(data.message || "A 6-digit code has been sent to your email.");
+        setInfo(data.message);
       }
-    } catch {
-      setError("Network error while sending verification code. Please try again.");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Could not send the verification code.");
     } finally {
       setLoading(false);
     }
@@ -74,21 +78,23 @@ export function LoginScreen({ onSuccess, onLogin }: LoginScreenProps) {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/verify-otp", {
+      const res = await apiFetch("/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: cleanEmail, code: cleanOtp }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        setError(data.error || "Invalid verification code.");
+        setError(await responseError(res, `Could not verify the sign-in code (${res.status}).`));
       } else {
-        onSuccess(data.user?.email || cleanEmail);
+        const user = parseAuthenticatedUser(await res.json());
+        if (user.email.toLocaleLowerCase() !== cleanEmail.toLocaleLowerCase()) {
+          throw new Error("The authenticated account does not match the email used for verification.");
+        }
+        onSuccess(user.email);
       }
-    } catch {
-      setError("Network error during verification. Please try again.");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Could not verify the sign-in code.");
     } finally {
       setLoading(false);
     }
@@ -102,32 +108,22 @@ export function LoginScreen({ onSuccess, onLogin }: LoginScreenProps) {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/send-otp", {
+      const res = await apiFetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: cleanEmail }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        setError(data.error || "Failed to resend verification code.");
+        setError(await responseError(res, `Failed to resend verification code (${res.status}).`));
       } else {
         setCooldown(60);
         setInfo("A new verification code has been sent.");
       }
-    } catch {
-      setError("Network error. Could not resend code.");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Could not resend the sign-in code.");
     } finally {
       setLoading(false);
-    }
-  }
-
-  function handleDemoSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (onLogin) {
-      const valid = onLogin(email.trim(), demoPassword);
-      setError(valid ? "" : "That email and password don’t match the demo account.");
     }
   }
 
@@ -154,43 +150,7 @@ export function LoginScreen({ onSuccess, onLogin }: LoginScreenProps) {
           <h1>Plan your term<br /><em>with intention.</em></h1>
           <p className="page-description">Bring your syllabus, teaching schedule, and classroom progress into one calm workspace.</p>
 
-          {showDemoFallback ? (
-            <form className="login-form" onSubmit={handleDemoSubmit}>
-              <label className="field-label" htmlFor="demo-login-email">Faculty email</label>
-              <input
-                id="demo-login-email"
-                type="text"
-                autoComplete="username"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="you@university.edu"
-                required
-              />
-              <label className="field-label" htmlFor="demo-login-password">Password</label>
-              <input
-                id="demo-login-password"
-                type="password"
-                autoComplete="current-password"
-                value={demoPassword}
-                onChange={(event) => setDemoPassword(event.target.value)}
-                placeholder="Enter password"
-                required
-              />
-              {error && <p className="form-error" role="alert">{error}</p>}
-              <Button type="submit" variant="primary" className="login-submit" arrow>
-                Continue to workspace (Demo)
-              </Button>
-              <div style={{ marginTop: "12px", textAlign: "center" }}>
-                <button
-                  type="button"
-                  onClick={() => { setShowDemoFallback(false); setError(""); }}
-                  style={{ background: "none", border: "none", color: "var(--sage)", fontSize: "10px", cursor: "pointer", textDecoration: "underline" }}
-                >
-                  ← Switch back to Email OTP sign-in
-                </button>
-              </div>
-            </form>
-          ) : step === "email" ? (
+          {step === "email" ? (
             <form className="login-form" onSubmit={handleSendOtp}>
               <label className="field-label" htmlFor="login-email">Faculty email</label>
               <input
@@ -260,21 +220,9 @@ export function LoginScreen({ onSuccess, onLogin }: LoginScreenProps) {
             </form>
           )}
 
-          <div
-            className="demo-credentials"
-            style={{ cursor: "pointer" }}
-            onClick={() => {
-              if (onLogin) {
-                setShowDemoFallback(true);
-                setEmail("example@123");
-                setDemoPassword("123");
-              }
-            }}
-            title="Click to load prototype demo credentials"
-          >
+          <div className="demo-credentials">
             <span>PASSWORDLESS OTP</span>
             <code>Single-use email link</code>
-            <code style={{ marginLeft: "auto", color: "var(--sage)", textDecoration: "underline" }}>Demo shortcut</code>
           </div>
 
           <div className="login-footnotes">

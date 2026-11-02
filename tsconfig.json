@@ -16,12 +16,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "types": ["vite/client"],
     "paths": {
       "@/*": [
         "./src/*"
@@ -29,11 +24,14 @@
     }
   },
   "include": [
-    "next-env.d.ts",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
-    "**/*.ts",
-    "**/*.tsx"
+    "src/App.tsx",
+    "src/main.tsx",
+    "src/components/**/*.ts",
+    "src/components/**/*.tsx",
+    "src/data/**/*.ts",
+    "src/lib/planning.ts",
+    "src/types/**/*.ts",
+    "vite.config.ts"
   ],
   "exclude": [
     "node_modules"

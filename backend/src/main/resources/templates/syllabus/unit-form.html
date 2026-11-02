@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit unit · Adaptive Teaching Planner</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body th:replace="~{fragments/app-shell :: shell(~{::main}, 'subjects', 'Syllabus unit')}">
+<main class="planner-page narrow-page">
+    <header class="page-header">
+        <div>
+            <a class="back-link" th:href="@{/subjects/{id}/syllabus(id=${subject.id})}">← Back to syllabus</a>
+            <p class="eyebrow">Edit unit</p>
+            <h1 th:text="${unit.name}">Unit name</h1>
+        </div>
+    </header>
+    <p class="notice error" role="alert" th:if="${error}" th:text="${error}"></p>
+    <form class="planner-form panel" method="post"
+          th:action="@{/subjects/{subjectId}/syllabus/units/{unitId}(subjectId=${subject.id},unitId=${unit.id})}">
+        <label for="unit-name">Unit name</label>
+        <input id="unit-name" name="name" type="text" maxlength="160" required th:value="${unit.name}">
+        <label for="unit-description">Description</label>
+        <textarea id="unit-description" name="description" rows="5" maxlength="2000" th:text="${unit.description}"></textarea>
+        <div class="form-actions">
+            <a class="button-link secondary-link" th:href="@{/subjects/{id}/syllabus(id=${subject.id})}">Cancel</a>
+            <button class="button-link" type="submit">Save unit</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>
