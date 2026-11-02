@@ -121,6 +121,7 @@ docs/
   planning-logic.md
   implementation-plan.md
   known-limitations.md
+  reference/         Original briefs and Stitch export archive
 ```
 
 ## Known limitations
@@ -132,3 +133,11 @@ docs/
 - Calendar shows approved/completed sessions, not pending proposals.
 - Secondary subject tabs are intentionally minimal.
 - No automated browser/E2E suite is included.
+
+## Migration status
+
+The migration sequence and audited feature inventory are in [docs/migration-plan.md](./docs/migration-plan.md). The Next.js and Prisma runtime files have been removed. The legacy Prisma schema and migration files were also removed from this source tree; no PostgreSQL or MySQL database was dropped or modified by this cleanup.
+
+## Design source
+
+The original user-supplied Stitch archive and both briefs are included under `docs/reference/`. The archive has ten HTML screen exports; three of its preview images (Home, My Subjects, and Teacher Profile) are 28-byte placeholders, so their exported HTML is the available reference for those screens.
